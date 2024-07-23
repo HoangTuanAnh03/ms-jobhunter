@@ -42,6 +42,20 @@ public class AuthenticationController {
         return ResponseEntity.ok(id + authorities);
     }
 
+    @PostMapping("/outbound/authentication")
+    ResponseEntity<AuthenticationResponse> outboundAuthenticate(
+            @RequestParam("code") String code
+    ){
+        InfoAuthenticationDTO infoAuthenticationDTO = authenticationService.outboundAuthenticate(code);
+
+        // set refreshToken Cookie
+        ResponseCookie resCookies = cookieUtil.createRefreshToken(infoAuthenticationDTO.getRefreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
+                .body(infoAuthenticationDTO.getAuthenticationResponse());
+    }
+
 
     @PostMapping("/introspect")
     ResponseEntity<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) {

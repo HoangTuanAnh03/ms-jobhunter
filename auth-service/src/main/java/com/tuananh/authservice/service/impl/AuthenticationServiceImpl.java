@@ -4,20 +4,29 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import com.tuananh.authservice.advice.AppException;
 import com.tuananh.authservice.advice.ErrorCode;
+import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
+import com.tuananh.authservice.dto.request.ExchangeTokenRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
 import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.entity.InvalidatedToken;
+import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.entity.User;
+import com.tuananh.authservice.repository.RoleRepository;
 import com.tuananh.authservice.repository.UserRepository;
 import com.tuananh.authservice.service.AuthenticationService;
 import com.tuananh.authservice.service.InvalidatedTokenService;
+import com.tuananh.authservice.service.client.OutboundIdentityClient;
+import com.tuananh.authservice.service.client.OutboundUserClient;
 import com.tuananh.authservice.util.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,6 +45,62 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokenService invalidatedTokenService;
     SecurityUtil securityUtil;
+    OutboundIdentityClient outboundIdentityClient;
+    OutboundUserClient outboundUserClient;
+    RoleRepository roleRepository;
+
+    @NonFinal
+    @Value("${outbound.identity.client-id}")
+    protected String CLIENT_ID;
+
+    @NonFinal
+    @Value("${outbound.identity.client-secret}")
+    protected String CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${outbound.identity.redirect-uri}")
+    protected String REDIRECT_URI;
+
+    @NonFinal
+    protected final String GRANT_TYPE = "authorization_code";
+
+    /**
+     * @param code
+     * @return
+     */
+    @Override
+    public InfoAuthenticationDTO outboundAuthenticate(String code) {
+        var response = outboundIdentityClient.exchangeToken(ExchangeTokenRequest.builder()
+                .code(code)
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
+                .redirectUri(REDIRECT_URI)
+                .grantType(GRANT_TYPE)
+                .build());
+
+        log.info("TOKEN RESPONSE {}", response);
+
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+
+        log.info("User Info {}", userInfo);
+
+//        Set<Role> roles = new HashSet<>();
+//        roles.add(Role.builder().name(PredefinedRole.USER_ROLE).build());
+
+        Role role = roleRepository.findByName("USER").orElseThrow(
+                () -> new ResourceNotFoundException("Role", "roleName", "USER" )
+        );
+
+        var user = userRepository.findByEmail(userInfo.getEmail()).orElseGet(
+                () -> userRepository.save(User.builder()
+                                .name(userInfo.getName())
+                                .email(userInfo.getEmail())
+                                .password("")
+                                .role(role)
+                                .build()));
+
+        return this.createInfoAuthenticationDTO(user);
+    }
 
     /**
      * @param introspectRequest -IntrospectRequest Object
@@ -136,4 +202,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return InfoAuthenticationDTO.builder().refreshToken(refreshToken).authenticationResponse(resLoginDTO).build();
     }
+
 }

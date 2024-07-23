@@ -2,6 +2,7 @@ package com.tuananh.authservice.service;
 
 import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
+import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
@@ -21,6 +22,22 @@ public interface UserService {
      * @return User Object on a given userId
      */
     User fetchUserById(String id);
+
+    /**
+     * @return UserResponse Object - Info currentUser
+     */
+    UserResponse fetchMyInfo();
+
+    /**
+     * @param companyId - Input companyId
+     * @return UserResponse Object
+     */
+    UserResponse handleUpdateHR(long companyId) throws PermissionException;
+
+    /**
+     * @param request - password
+     */
+    void createPassword(PasswordCreationRequest request);
 
     /**
      * @param email - Input email
@@ -63,7 +80,5 @@ public interface UserService {
     /**
      * @return UserResponse Object - Info currentUser
      */
-    UserResponse fetchMyInfo();
 
-    UserResponse handleUpdateHR(long companyId) throws PermissionException;
 }

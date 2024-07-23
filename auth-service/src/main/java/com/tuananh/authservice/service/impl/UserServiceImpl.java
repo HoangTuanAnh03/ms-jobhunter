@@ -1,9 +1,12 @@
 package com.tuananh.authservice.service.impl;
 
+import com.tuananh.authservice.advice.AppException;
+import com.tuananh.authservice.advice.ErrorCode;
 import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.mapper.UserMapper;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
+import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.dto.response.UserResponse;
@@ -20,8 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -92,6 +97,24 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * @param request - password
+     */
+    @Override
+    public void createPassword(PasswordCreationRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (StringUtils.hasText(user.getPassword()))
+            throw new AppException(ErrorCode.PASSWORD_EXISTED);
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+    }
+
+    /**
      * @param email - Input email
      * @return User Object on a given email
      */
@@ -155,8 +178,8 @@ public class UserServiceImpl implements UserService {
 //            user.setCompany(companyOptional.isPresent() ? companyOptional.get() : null);
 //        }
 
-        Role role = roleRepository.findById(newUser.getRoleId()).orElseThrow(
-                () -> new ResourceNotFoundException("Role", "roleId",  newUser.getRoleId())
+        Role role = roleRepository.findByName("USER").orElseThrow(
+                () -> new ResourceNotFoundException("Role", "roleName", "USER")
         );
 
         User user = User.builder()

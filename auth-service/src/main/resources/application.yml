@@ -57,6 +57,11 @@ jwt:
   valid-duration: 3600 # in second
   refreshable-duration: 36000 # in seconds
 
+outbound:
+  identity:
+    client-id: 286299218562-ur2avuo3vhf2hbsbuga3pkr27ejqhf67.apps.googleusercontent.com
+    client-secret: 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
+    redirect-uri: "http://localhost:3000/authenticate"
 
 info:
   app:

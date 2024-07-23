@@ -3,6 +3,7 @@ package com.tuananh.authservice.service;
 import com.nimbusds.jose.JOSEException;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
+import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.entity.User;
@@ -39,4 +40,6 @@ public interface AuthenticationService {
      * @return Convert User Object to InfoAuthenticationDTO Object
      */
     InfoAuthenticationDTO createInfoAuthenticationDTO(User user);
+
+    InfoAuthenticationDTO outboundAuthenticate(String code);
 }

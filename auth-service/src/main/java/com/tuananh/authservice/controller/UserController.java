@@ -2,6 +2,7 @@ package com.tuananh.authservice.controller;
 
 import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.advice.exception.PermissionException;
+import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
@@ -26,6 +27,13 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
+
+    @PostMapping("/create-password")
+    public ResponseEntity<?> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
+        userService.createPassword(request);
+        return ResponseEntity.ok()
+                            .body("Password has been created, you could use it to log-in");
+    }
 
     @ApiMessage("fetch user by id")
     @GetMapping("/{id}")

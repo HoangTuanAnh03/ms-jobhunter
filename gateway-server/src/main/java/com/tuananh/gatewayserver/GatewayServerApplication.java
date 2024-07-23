@@ -1,6 +1,5 @@
 package com.tuananh.gatewayserver;
 
-import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,11 +21,23 @@ public class GatewayServerApplication {
     @Bean
     public RouteLocator RouteConfig(RouteLocatorBuilder routeLocatorBuilder) {
         return routeLocatorBuilder.routes()
-            .route(p -> p
-                .path(apiPrefix + "/auth/**")
-                .filters(f -> f.rewritePath(apiPrefix + "/auth/(?<segment>.*)", "/auth/${segment}")
+                .route(p -> p
+                    .path(apiPrefix + "/auth/**", apiPrefix + "/users/**")
+                    .filters(f -> f
+                                    .rewritePath(apiPrefix + "/auth/(?<segment>.*)", "/auth/${segment}")
+                                    .rewritePath(apiPrefix + "/users/(?<segment>.*)", "/users/${segment}")
                         .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         )
-                .uri("lb://AUTH-SERVICE")).build();
+                    .uri("lb://AUTH-SERVICE"))
+                .route(p -> p
+                        .path(apiPrefix + "/company/**")
+                        .filters(f -> f
+                                .rewritePath(apiPrefix + "/company/(?<segment>.*)", "/company/${segment}")
+                                .rewritePath(apiPrefix + "/company", "/company")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri("lb://COMPANY-SERVICE"))
+
+                .build();
     }
 }

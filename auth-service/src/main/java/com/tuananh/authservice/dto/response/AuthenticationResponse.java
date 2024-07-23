@@ -1,7 +1,6 @@
 package com.tuananh.authservice.dto.response;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,8 +8,42 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
+//@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationResponse {
-    String token;
-    Date expiryTime;
+    @JsonProperty("access_token")
+    private String accessToken;
+
+    private UserLogin user;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class UserLogin {
+        String id;
+        String email;
+        String name;
+        String role;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class UserGetAccount {
+        UserLogin user;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class UserInsideToken {
+        long id;
+        String email;
+        String name;
+    }
 }

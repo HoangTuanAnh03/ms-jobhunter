@@ -8,8 +8,8 @@ import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
 import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
-import com.tuananh.authservice.dto.response.ResAuthenticationDTO;
-import com.tuananh.authservice.dto.response.ResUserDTO;
+import com.tuananh.authservice.dto.response.AuthenticationResponse;
+import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.service.AuthenticationService;
 import com.tuananh.authservice.service.UserService;
 import com.tuananh.authservice.util.CookieUtil;
@@ -51,7 +51,7 @@ public class AuthenticationController {
 
     @ApiMessage("User login")
     @PostMapping("/login")
-    ResponseEntity<ResAuthenticationDTO> authenticate(@RequestBody AuthenticationRequest request) {
+    ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         InfoAuthenticationDTO infoAuthenticationDTO = authenticationService.authenticate(request);
 
         // set refreshToken Cookie
@@ -59,23 +59,23 @@ public class AuthenticationController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())
-                .body(infoAuthenticationDTO.getResLoginDTO());
+                .body(infoAuthenticationDTO.getAuthenticationResponse());
     }
 
     @ApiMessage("Register a new user")
     @PostMapping("/register")
-    public ResponseEntity<ResUserDTO> createNewUser(@Valid @RequestBody CreateUserRequest postManUser) {
+    public ResponseEntity<UserResponse> createNewUser(@Valid @RequestBody CreateUserRequest postManUser) {
         boolean isEmailExist = this.userService.isEmailExist(postManUser.getEmail());
         if (isEmailExist) {
             throw new DuplicateRecordException("USER ", "Email", postManUser.getEmail());}
 
-        ResUserDTO resUserDTO = this.userService.handleCreateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(resUserDTO);
+        UserResponse userResponse = this.userService.handleCreateUser(postManUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
     @ApiMessage("Refresh Token")
     @PostMapping("/refresh")
-    ResponseEntity<ResAuthenticationDTO> refreshToken(@CookieValue(name = "refresh_token", defaultValue = "defaultToken") String refresh_token) throws IdInvalidException, ParseException, JOSEException {
+    ResponseEntity<AuthenticationResponse> refreshToken(@CookieValue(name = "refresh_token", defaultValue = "defaultToken") String refresh_token) throws IdInvalidException, ParseException, JOSEException {
         if (refresh_token.equals("defaultToken")) {
             throw new IdInvalidException("You do not have a refresh token in the cookie");
         }
@@ -86,7 +86,7 @@ public class AuthenticationController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())
-                .body(infoAuthenticationDTO.getResLoginDTO());
+                .body(infoAuthenticationDTO.getAuthenticationResponse());
     }
 
     @PostMapping("/logout")

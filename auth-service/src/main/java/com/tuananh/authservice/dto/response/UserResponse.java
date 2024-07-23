@@ -5,7 +5,6 @@ import com.tuananh.authservice.util.constant.GenderEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ResUserDTO {
+public class UserResponse {
     String id;
     String email;
     String name;
@@ -30,6 +29,8 @@ public class ResUserDTO {
 
     CompanyUser company;
     RoleUser role;
+
+    Boolean noPassword;
 
     @Data
     @NoArgsConstructor

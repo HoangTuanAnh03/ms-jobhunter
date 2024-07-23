@@ -8,7 +8,7 @@ import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
 import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
-import com.tuananh.authservice.dto.response.ResAuthenticationDTO;
+import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.entity.InvalidatedToken;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.repository.UserRepository;
@@ -122,18 +122,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var accessToken = securityUtil.generateToken(user, false);
         var refreshToken = securityUtil.generateToken(user, true);
 
-        ResAuthenticationDTO.UserLogin userLogin = ResAuthenticationDTO.UserLogin.builder()
+        AuthenticationResponse.UserLogin userLogin = AuthenticationResponse.UserLogin.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .role("ROLE_" + user.getRole().getName())
                 .build();
 
-        ResAuthenticationDTO resLoginDTO = ResAuthenticationDTO.builder()
+        AuthenticationResponse resLoginDTO = AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .user(userLogin)
                 .build();
 
-        return InfoAuthenticationDTO.builder().refreshToken(refreshToken).resLoginDTO(resLoginDTO).build();
+        return InfoAuthenticationDTO.builder().refreshToken(refreshToken).authenticationResponse(resLoginDTO).build();
     }
 }

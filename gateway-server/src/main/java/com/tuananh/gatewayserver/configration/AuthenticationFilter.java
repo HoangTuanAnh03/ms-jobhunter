@@ -42,6 +42,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private String[] publicEndpoints = {
             "/auth/.*",
+            "/company/.*" //: /company/1, /company/pagination
     };
 
     @Override
@@ -82,8 +83,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     Mono<Void> unauthenticated(ServerHttpResponse response){
         RestResponse<?> apiResponse = RestResponse.builder()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .error("Unauthenticated")
-                .message("Unauthenticated")
+                .error("Unauthenticated1")
+                .message("Unauthenticated1")
                 .data(null)
                 .build();
 

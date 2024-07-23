@@ -1,9 +1,9 @@
 package com.tuananh.authservice.controller;
 
 import com.tuananh.authservice.advice.exception.IdInvalidException;
-import com.tuananh.authservice.dto.request.CreateUserRequest;
+import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
-import com.tuananh.authservice.dto.response.ResUserDTO;
+import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.service.UserService;
@@ -29,9 +29,16 @@ public class UserController {
 
     @ApiMessage("fetch user by id")
     @GetMapping("/{id}")
-    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") String id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(this.userService.fetchResUserDtoById(id));
+    }
+
+    @ApiMessage("fetch my info")
+    @GetMapping("/my-info")
+    public ResponseEntity<UserResponse> getMyInfo() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.userService.fetchMyInfo());
     }
 
     @ApiMessage("fetch all users")
@@ -47,8 +54,14 @@ public class UserController {
 
     @ApiMessage("Update a user")
     @PutMapping("/{id}")
-    public ResponseEntity<ResUserDTO> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updateUserRequest) throws IdInvalidException {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updateUserRequest) throws IdInvalidException {
         return ResponseEntity.ok(this.userService.handleUpdateUser(id, updateUserRequest));
+    }
+
+    @ApiMessage("Update role HR")
+    @PutMapping("/updateHR/{companyId}")
+    public ResponseEntity<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId) throws PermissionException {
+        return ResponseEntity.ok(this.userService.handleUpdateHR(companyId));
     }
 
     @ApiMessage("Delete a user")

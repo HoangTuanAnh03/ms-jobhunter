@@ -1,5 +1,6 @@
 package com.tuananh.authservice.security;
 
+import com.tuananh.authservice.util.constant.PredefinedRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,7 @@ public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
 //            "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh",
 //            "/users/registration",
+            "/users/updateHR/*",
             "/auth/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
@@ -41,10 +43,11 @@ public class SecurityConfiguration {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/auth/test").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/auth/test").hasAuthority(PredefinedRole.ROLE_ADMIN)
 
-                .requestMatchers(HttpMethod.GET, "/user").hasAuthority("ROLE_ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/user/*").hasAuthority("ROLE_ADMIN")
+//                .requestMatchers(HttpMethod.PUT, "/users/updateHR/*").hasAuthority(PredefinedRole.ROLE_USER)
+                .requestMatchers(HttpMethod.GET, "/users").hasAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/users/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
 
                 .anyRequest().authenticated());
 

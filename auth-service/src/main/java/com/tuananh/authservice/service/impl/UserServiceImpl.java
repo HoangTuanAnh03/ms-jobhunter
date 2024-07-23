@@ -1,16 +1,18 @@
 package com.tuananh.authservice.service.impl;
 
+import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.mapper.UserMapper;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
-import com.tuananh.authservice.dto.response.ResUserDTO;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
+import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.repository.RoleRepository;
 import com.tuananh.authservice.repository.UserRepository;
 import com.tuananh.authservice.service.UserService;
+import com.tuananh.authservice.util.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +35,7 @@ public class UserServiceImpl implements UserService {
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    SecurityUtil securityUtil;
 
     /**
      * @param email - Input email
@@ -52,6 +56,42 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * @return UserResponse Object - Info currentUser
+     */
+    @Override
+    public UserResponse fetchMyInfo() {
+        String email = securityUtil.getCurrentUserLogin().orElse(null);
+        return this.userMapper.toUserResponse(Objects.requireNonNull(userRepository.findByEmail(email).orElse(null)));
+    }
+
+    /**
+     * @param companyId - Input companyId
+     * @return UserResponse Object
+     */
+    @Override
+    public UserResponse handleUpdateHR(long companyId) throws PermissionException {
+        String email = securityUtil.getCurrentUserLogin().orElse(null);
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        Role roleHR = roleRepository.findByName("HR").orElseThrow(
+                () -> new ResourceNotFoundException("Role", "roleName", "HR")
+        );
+
+        if (userRepository.existsByCompanyIdAndRole(companyId, roleHR)){
+            throw new PermissionException("You do not have permission");
+        }
+
+        if (user != null) {
+            user.setCompanyId(companyId);
+            user.setRole(roleHR);
+            userRepository.save(user);
+        }
+
+        return userMapper.toUserResponse(user);
+    }
+
+    /**
      * @param email - Input email
      * @return User Object on a given email
      */
@@ -65,12 +105,12 @@ public class UserServiceImpl implements UserService {
      * @return User Details based on a given data updated to database
      */
     @Override
-    public ResUserDTO fetchResUserDtoById(String id) {
+    public UserResponse fetchResUserDtoById(String id) {
         User user = this.userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User", "userId", id)
         );
 
-        return this.userMapper.toResUserDTO(user);
+        return this.userMapper.toUserResponse(user);
     }
 
     /**
@@ -94,8 +134,8 @@ public class UserServiceImpl implements UserService {
         rs.setMeta(mt);
 
         // remove sensitive data
-        List<ResUserDTO> listUser = pageUser.getContent()
-                .stream().map(this.userMapper::toResUserDTO)
+        List<UserResponse> listUser = pageUser.getContent()
+                .stream().map(this.userMapper::toUserResponse)
                 .collect(Collectors.toList());
 
         rs.setResult(listUser);
@@ -108,7 +148,7 @@ public class UserServiceImpl implements UserService {
      * @return User Details based on a given data saved to database
      */
     @Override
-    public ResUserDTO handleCreateUser(CreateUserRequest newUser) {
+    public UserResponse handleCreateUser(CreateUserRequest newUser) {
         // check company
 //        if (user.getCompany() != null) {
 //            Optional<Company> companyOptional = this.companyService.findById(user.getCompany().getId());
@@ -127,13 +167,12 @@ public class UserServiceImpl implements UserService {
                 .dob(newUser.getDob())
                 .email(newUser.getEmail())
                 .role(role)
-                .companyId(newUser.getCompanyId())
                 .password(passwordEncoder.encode(newUser.getPassword()))
                 .build();
 
         userRepository.save(user);
 
-        return this.userMapper.toResUserDTO(user);
+        return this.userMapper.toUserResponse(user);
     }
 
     /**
@@ -142,7 +181,7 @@ public class UserServiceImpl implements UserService {
      * @return User Details based on a given data updated to database
      */
     @Override
-    public ResUserDTO handleUpdateUser(String id, UpdateUserRequest updateUserRequest) {
+    public UserResponse handleUpdateUser(String id, UpdateUserRequest updateUserRequest) {
         User currentUser = this.userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User", "userId", id)
         );
@@ -161,7 +200,7 @@ public class UserServiceImpl implements UserService {
 //            }
 
         currentUser = this.userRepository.save(currentUser);
-        return this.userMapper.toResUserDTO(currentUser);
+        return this.userMapper.toUserResponse(currentUser);
     }
 
     /**

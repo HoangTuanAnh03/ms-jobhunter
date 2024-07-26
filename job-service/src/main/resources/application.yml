@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8082
 spring:
   application:
-    name: "auth-service"
-#  profiles:
-#    active: native
+    name: "job-service"
+  #  profiles:
+  #    active: native
   datasource:
-    url: jdbc:mysql://localhost:3306/authsdb
+    url: jdbc:mysql://localhost:3306/jobsdb
     username: root
     password: ""
   jpa:
@@ -52,23 +52,12 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
 
-jwt:
-  signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
-  valid-duration: 3600 # in second
-  refreshable-duration: 36000 # in seconds
-
-outbound:
-  identity:
-    client-id: 286299218562-ur2avuo3vhf2hbsbuga3pkr27ejqhf67.apps.googleusercontent.com
-    client-secret: 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
-    redirect-uri: "http://localhost:3000/authenticate"
-
 app:
   services:
-    company: http://localhost:8081/company
+    auth: http://localhost:8080
 
 info:
   app:
-    name: "auth-service"
-    description: "JobHunter Auth Application"
+    name: "job-service"
+    description: "JobHunter Company Application"
     version: "1.0"

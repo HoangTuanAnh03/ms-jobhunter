@@ -2,17 +2,34 @@ package com.tuananh.authservice.dto.mapper;
 
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.entity.User;
-import lombok.AllArgsConstructor;
+import com.tuananh.authservice.service.client.CompanyClient;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserMapper {
-    public UserResponse toUserResponse(User user) {
+    CompanyClient companyClient;
 
-        UserResponse.CompanyUser companyUser = UserResponse.CompanyUser.builder().id(user.getCompanyId()).name("null").build();
-        UserResponse.RoleUser roleUser = UserResponse.RoleUser.builder().id(user.getRole().getId()).name(user.getRole().getName()).build();
+    public UserResponse toUserResponse(User user) {
+        UserResponse.CompanyUser companyUser = null;
+
+        if (user.getCompanyId() != 0) {
+            var company = companyClient.getById(5).getData();
+            companyUser = UserResponse.CompanyUser.builder()
+                    .id(company.getId())
+                    .name(company.getName())
+                    .build();
+        }
+
+        var roleUser = UserResponse.RoleUser.builder()
+                .id(user.getRole().getId())
+                .name(user.getRole().getName())
+                .build();
 
         return UserResponse.builder()
                         .id(user.getId())

@@ -37,6 +37,25 @@ public class GatewayServerApplication {
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         )
                         .uri("lb://COMPANY-SERVICE"))
+                .route(p -> p
+                        .path(apiPrefix + "/jobs/**", apiPrefix + "/skills/**")
+                        .filters(f -> f
+                                .rewritePath(apiPrefix + "/jobs/(?<segment>.*)", "/jobs/${segment}")
+                                .rewritePath(apiPrefix + "/jobs", "/jobs")
+                                .rewritePath(apiPrefix + "/skills/(?<segment>.*)", "/skills/${segment}")
+                                .rewritePath(apiPrefix + "/skills", "/skills")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri("lb://JOB-SERVICE"))
+
+
+                .route(p -> p
+                        .path(apiPrefix + "/files/**")
+                        .filters(f -> f
+                                .rewritePath(apiPrefix + "/files/(?<segment>.*)", "/files/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri("lb://FILE-SERVICE"))
 
                 .build();
     }

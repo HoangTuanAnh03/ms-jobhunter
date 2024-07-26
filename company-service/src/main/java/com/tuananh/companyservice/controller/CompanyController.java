@@ -38,9 +38,9 @@ import org.springframework.web.bind.annotation.*;
 public class CompanyController {
     CompanyService companyService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/fetchById/{id}")
     @ApiMessage("Fetch company by id")
-    public ResponseEntity<IntegrateInfoCompanyRes> getById(@PathVariable("id") long id) {
+    public ResponseEntity<IntegrateInfoCompanyRes> fetchById(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(this.companyService.fetchById(id));
     }
 

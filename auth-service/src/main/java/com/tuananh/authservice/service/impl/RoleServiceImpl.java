@@ -1,7 +1,6 @@
 package com.tuananh.authservice.service.impl;
 
 import com.tuananh.authservice.advice.exception.DuplicateRecordException;
-import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.request.CreateRoleRequest;
 import com.tuananh.authservice.dto.request.UpdateRoleRequest;
@@ -85,13 +84,14 @@ public class RoleServiceImpl implements RoleService {
      * @return Role Object updated to database
      */
     @Override
-    public Role update(int id, UpdateRoleRequest updateRoleRequest) throws IdInvalidException {
-        Role currentRole = this.fetchById(id);
+    public Role update(int id, UpdateRoleRequest updateRoleRequest) {
+        Role currentRole = roleRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Role", "roleId", id));
 
         Role newRoleByName = roleRepository.findByName(updateRoleRequest.getName()).orElse(null);
 
         if (newRoleByName != null && newRoleByName.getId() != currentRole.getId()
-                && currentRole.getName().equals(newRoleByName.getName())) {
+                && newRoleByName.getName().equals(updateRoleRequest.getName())) {
             throw new DuplicateRecordException("ROLE", "Name", newRoleByName.getName());
         }
 

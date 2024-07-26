@@ -82,7 +82,7 @@ public class CompanyServiceImpl implements CompanyService {
      * @param companyRequest - CreateCompanyRequest Object
      * @return Company Object saved to database
      */
-    @Transactional
+//    @Transactional
     @Override
     public Company create(CreateCompanyRequest companyRequest) {
 //        if (existByName(companyRequest.getName())) {

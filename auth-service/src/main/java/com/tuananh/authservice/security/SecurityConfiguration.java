@@ -58,7 +58,7 @@ public class SecurityConfiguration {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/auth/test").hasAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.GET, "/auth/test").hasAuthority(PredefinedRole.ROLE_USER)
 
 //                .requestMatchers(HttpMethod.PUT, "/users/updateHR/*").hasAuthority(PredefinedRole.ROLE_USER)
                 .requestMatchers(HttpMethod.GET, "/users").hasAuthority(PredefinedRole.ROLE_ADMIN)

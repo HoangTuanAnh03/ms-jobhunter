@@ -1,6 +1,5 @@
 package com.tuananh.authservice.service;
 
-import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.dto.request.CreateRoleRequest;
 import com.tuananh.authservice.dto.request.UpdateRoleRequest;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
@@ -38,7 +37,7 @@ public interface RoleService {
      * @param updateRoleRequest -UpdateRoleRequest Object
      * @return Role Object updated to database
      */
-    Role update(int id, UpdateRoleRequest updateRoleRequest) throws IdInvalidException;
+    Role update(int id, UpdateRoleRequest updateRoleRequest);
 
     /**
      * @param id - Input UserId

@@ -1,6 +1,6 @@
-package com.tuananh.companyservice.security;
+package com.tuananh.jobservice.security;
 
-import com.tuananh.companyservice.util.constant.PredefinedRole;
+import com.tuananh.jobservice.util.constant.PredefinedRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,8 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/company/fetchById/*",
-            "/company/pagination",
+            "/jobs/fetchById/*",
+            "/jobs/pagination",
+            "/skills/fetchById/*",
+            "/skills/pagination",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
 
@@ -41,13 +43,13 @@ public class SecurityConfiguration {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
 
-                .requestMatchers(HttpMethod.POST, "/company").hasAuthority(PredefinedRole.ROLE_USER)
-                .requestMatchers(HttpMethod.PUT, "/company/*").hasAnyAuthority(PredefinedRole.ROLE_HR, PredefinedRole.ROLE_ADMIN)
-                .requestMatchers(HttpMethod.DELETE, "/company/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PUT, "/company/changeStatus/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.POST, "/jobs/create").hasAuthority(PredefinedRole.ROLE_HR)
+                .requestMatchers(HttpMethod.PUT, "/jobs/*").hasAnyAuthority(PredefinedRole.ROLE_HR)
+                .requestMatchers(HttpMethod.DELETE, "/jobs/*").hasAuthority(PredefinedRole.ROLE_HR)
 
-//                .requestMatchers(HttpMethod.GET, "/user").hasAuthority("ROLE_ADMIN")
-//                .requestMatchers(HttpMethod.DELETE, "/user/*").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/skills/create").hasAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PUT, "/skills/*").hasAnyAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/skills/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
 
                 .anyRequest().authenticated());
 

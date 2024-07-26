@@ -127,10 +127,7 @@ public class RoleController {
     )
     @PutMapping("/{id}")
     @ApiMessage("Update a role")
-    public ResponseEntity<Role> update(@PathVariable("id") int id, @Valid @RequestBody UpdateRoleRequest updateRoleRequest) throws IdInvalidException {
-        if (this.roleService.fetchById(id) == null) {
-            throw new IdInvalidException("RoleId = " + id + " not exited");
-        }
+    public ResponseEntity<Role> update(@PathVariable("id") int id, @Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
         return ResponseEntity.ok().body(this.roleService.update(id, updateRoleRequest));
     }
 

@@ -3,10 +3,14 @@ package com.tuananh.jobservice.service;
 import com.tuananh.jobservice.advice.exception.PermissionException;
 import com.tuananh.jobservice.dto.request.CreateJobRequest;
 import com.tuananh.jobservice.dto.request.UpdateJobRequest;
+import com.tuananh.jobservice.dto.response.JobResponse;
 import com.tuananh.jobservice.dto.response.ResultPaginationDTO;
 import com.tuananh.jobservice.entity.Job;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
+import java.util.Set;
 
 public interface JobService {
 
@@ -46,4 +50,5 @@ public interface JobService {
     //
     boolean delete(long id) throws PermissionException;
 
+    List<JobResponse> fetchByIdIn(Set<Long> listId);
 }

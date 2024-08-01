@@ -4,6 +4,7 @@ import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
+import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.entity.User;
@@ -21,6 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/users")
 @AllArgsConstructor
@@ -36,10 +40,17 @@ public class UserController {
     }
 
     @ApiMessage("fetch user by id")
-    @GetMapping("/{id}")
+    @GetMapping("/fetchUserById/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable("id") String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(this.userService.fetchResUserDtoById(id));
+    }
+
+    @ApiMessage("fetch users by id")
+    @GetMapping("/fetchUserByIdIn")
+    public ResponseEntity<List<SimpInfoUserResponse>> fetchUserByIdIn(@RequestParam("ids") List<String> ids) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.userService.fetchUserByIdIn(ids));
     }
 
     @ApiMessage("fetch my info")

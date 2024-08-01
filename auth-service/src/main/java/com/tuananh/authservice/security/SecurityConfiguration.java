@@ -26,6 +26,7 @@ public class SecurityConfiguration {
 //            "/users/registration",
             "/auth/outbound/authentication",
             "/users/updateHR/*",
+            "/users/fetchUserById",
             "/auth/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
@@ -62,6 +63,7 @@ public class SecurityConfiguration {
 
 //                .requestMatchers(HttpMethod.PUT, "/users/updateHR/*").hasAuthority(PredefinedRole.ROLE_USER)
                 .requestMatchers(HttpMethod.GET, "/users").hasAuthority(PredefinedRole.ROLE_ADMIN)
+                .requestMatchers(HttpMethod.GET, "/users/fetchUserByIdIn").hasAnyAuthority(PredefinedRole.ROLE_HR, PredefinedRole.ROLE_ADMIN)
                 .requestMatchers(HttpMethod.POST, "/users/create-password").hasAuthority(PredefinedRole.ROLE_USER)
                 .requestMatchers(HttpMethod.DELETE, "/users/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
 

@@ -9,6 +9,9 @@ import com.tuananh.companyservice.entity.Company;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+import java.util.Set;
+
 public interface CompanyService {
     /**
      * @param name - Input companyName
@@ -48,4 +51,6 @@ public interface CompanyService {
     boolean delete(long id);
 
     Company changeStatus(long id, ChangeStatusCompanyRequest changeStatusCompanyRequest);
+
+    List<Company> fetchByIdIn(List<Long> ids);
 }

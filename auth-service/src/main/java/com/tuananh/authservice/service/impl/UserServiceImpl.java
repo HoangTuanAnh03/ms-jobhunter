@@ -9,6 +9,7 @@ import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
+import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.entity.User;
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
         );
 
         if (userRepository.existsByCompanyIdAndRole(companyId, roleHR)){
-            throw new PermissionException("You do not have permission");
+            throw new PermissionException("Forbidden");
         }
 
         if (user != null) {
@@ -238,5 +239,14 @@ public class UserServiceImpl implements UserService {
         );
         this.userRepository.deleteById(user.getId());
         return true;
+    }
+
+    /**
+     * @param ids
+     * @return
+     */
+    @Override
+    public List<SimpInfoUserResponse> fetchUserByIdIn(List<String> ids) {
+        return userRepository.findByIdIn(ids).stream().map(userMapper::toSimpInfoUserResponse).toList();
     }
 }

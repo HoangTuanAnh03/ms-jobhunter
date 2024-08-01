@@ -22,6 +22,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -157,6 +160,15 @@ public class CompanyServiceImpl implements CompanyService {
         );
         company.setStatus(changeStatusCompanyRequest.getStatus());
         return companyRepository.save(company);
+    }
+
+    /**
+     * @param ids
+     * @return
+     */
+    @Override
+    public List<Company> fetchByIdIn(List<Long> ids) {
+        return companyRepository.findByIdIn(ids);
     }
 
 

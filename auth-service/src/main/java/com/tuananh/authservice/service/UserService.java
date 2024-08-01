@@ -4,11 +4,14 @@ import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
+import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public interface UserService {
     /**
@@ -76,6 +79,8 @@ public interface UserService {
      * @return boolean indicating if the delete of User details is successful or not
      */
     boolean handleDeleteUser(String id);
+
+    List<SimpInfoUserResponse> fetchUserByIdIn(List<String> ids);
 
     /**
      * @return UserResponse Object - Info currentUser

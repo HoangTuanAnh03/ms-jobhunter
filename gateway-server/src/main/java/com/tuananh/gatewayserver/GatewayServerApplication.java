@@ -48,6 +48,14 @@ public class GatewayServerApplication {
                         )
                         .uri("lb://JOB-SERVICE"))
 
+                .route(p -> p
+                        .path(apiPrefix + "/resume/**")
+                        .filters(f -> f
+                                .rewritePath(apiPrefix + "/resume/(?<segment>.*)", "/resume/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        )
+                        .uri("lb://RESUME-SERVICE"))
+
 
                 .route(p -> p
                         .path(apiPrefix + "/files/**")

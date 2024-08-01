@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
@@ -19,4 +20,5 @@ public interface JobRepository extends JpaRepository<Job, Long>,
 
     Optional<Job> findById(long id);
 
+    List<Job> findByIdIn(Set<Long> ids);
 }

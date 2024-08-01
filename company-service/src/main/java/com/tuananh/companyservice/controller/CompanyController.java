@@ -22,6 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 
 /**
  * @author Tuan Anh Hoang
@@ -42,6 +45,12 @@ public class CompanyController {
     @ApiMessage("Fetch company by id")
     public ResponseEntity<IntegrateInfoCompanyRes> fetchById(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(this.companyService.fetchById(id));
+    }
+
+    @GetMapping("/fetchByIdIn")
+    @ApiMessage("Fetch companies by ids")
+    public ResponseEntity<List<Company>> fetchByIdIn(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok().body(this.companyService.fetchByIdIn(ids));
     }
 
     @GetMapping("/pagination")

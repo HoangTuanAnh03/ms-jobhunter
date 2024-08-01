@@ -4,6 +4,7 @@ package com.tuananh.jobservice.controller;
 import com.tuananh.jobservice.advice.exception.PermissionException;
 import com.tuananh.jobservice.dto.request.CreateJobRequest;
 import com.tuananh.jobservice.dto.request.UpdateJobRequest;
+import com.tuananh.jobservice.dto.response.JobResponse;
 import com.tuananh.jobservice.dto.response.ResultPaginationDTO;
 import com.tuananh.jobservice.entity.Job;
 import com.tuananh.jobservice.service.JobService;
@@ -20,6 +21,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -38,9 +42,15 @@ public class JobController {
     JobService jobService;
 
     @GetMapping("/fetchById/{id}")
-    @ApiMessage("Fetch skill by id")
+    @ApiMessage("Fetch job by id")
     public ResponseEntity<Job> getById(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(jobService.fetchById(id));
+    }
+
+    @GetMapping("/fetchByIdIn")
+    @ApiMessage("Fetch job by ids")
+    public ResponseEntity<List<JobResponse>> fetchByIdIn(@RequestParam Set<Long> ids) {
+        return ResponseEntity.ok().body(jobService.fetchByIdIn(ids));
     }
 
     @GetMapping("/pagination")
@@ -52,7 +62,7 @@ public class JobController {
     }
 
     @PostMapping("/create")
-    @ApiMessage("Create a skill")
+    @ApiMessage("Create a job")
     public ResponseEntity<Job> create(@Valid @RequestBody CreateJobRequest jobRequest) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -60,14 +70,14 @@ public class JobController {
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update a skill")
+    @ApiMessage("Update a job")
     public ResponseEntity<Job> update(@PathVariable("id") long id, @Valid @RequestBody UpdateJobRequest jobRequest)
             throws PermissionException {
         return ResponseEntity.ok().body(this.jobService.update(id, jobRequest));
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a skill")
+    @ApiMessage("Delete a job")
     public ResponseEntity<?> delete(@PathVariable("id") long id) throws PermissionException {
         boolean isDeleted = jobService.delete(id);
         if (isDeleted) {

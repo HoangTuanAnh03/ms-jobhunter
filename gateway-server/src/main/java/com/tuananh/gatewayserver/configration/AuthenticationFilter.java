@@ -42,12 +42,16 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private String[] publicEndpoints = {
             "/auth/.*",
+            "/users/fetchUserByIdIn",
+            "/auth/.*",
             "/company/fetchById/.*",
             "/company/pagination",
             "/jobs/fetchById/.*",
             "/jobs/pagination",
             "/skills/fetchById/.*",
             "/skills/pagination",
+
+            // resume
     };
 
     @Override

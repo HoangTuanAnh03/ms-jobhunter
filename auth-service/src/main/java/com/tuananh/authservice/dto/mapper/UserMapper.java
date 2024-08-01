@@ -1,5 +1,6 @@
 package com.tuananh.authservice.dto.mapper;
 
+import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.service.client.CompanyClient;
@@ -43,5 +44,17 @@ public class UserMapper {
                         .createdAt(user.getCreatedAt())
                         .updatedAt(user.getUpdatedAt())
                         .build();
+    }
+
+    public SimpInfoUserResponse toSimpInfoUserResponse(User user) {
+        return SimpInfoUserResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .dob(user.getDob())
+                .gender(user.getGender())
+                .address(user.getAddress())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .build();
     }
 }

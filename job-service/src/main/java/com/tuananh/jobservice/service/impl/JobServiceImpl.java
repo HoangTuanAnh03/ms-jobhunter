@@ -5,12 +5,15 @@ import com.tuananh.jobservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.jobservice.dto.mapper.JobMapper;
 import com.tuananh.jobservice.dto.request.CreateJobRequest;
 import com.tuananh.jobservice.dto.request.UpdateJobRequest;
+import com.tuananh.jobservice.dto.response.Company;
+import com.tuananh.jobservice.dto.response.JobResponse;
 import com.tuananh.jobservice.dto.response.ResultPaginationDTO;
 import com.tuananh.jobservice.entity.Job;
 import com.tuananh.jobservice.repository.JobRepository;
 import com.tuananh.jobservice.repository.SkillRepository;
 import com.tuananh.jobservice.service.JobService;
 import com.tuananh.jobservice.service.client.AuthClient;
+import com.tuananh.jobservice.service.client.CompanyClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -29,6 +35,7 @@ public class JobServiceImpl implements JobService {
     SkillRepository skillRepository;
     JobMapper jobMapper;
     AuthClient authClient;
+    CompanyClient companyClient;
 
     /**
      * @param id - jobId
@@ -132,6 +139,36 @@ public class JobServiceImpl implements JobService {
 
         jobRepository.deleteById(job.getId());
         return true;
+    }
+
+    /**
+     * @param listId
+     * @return
+     */
+    @Override
+    public List<JobResponse> fetchByIdIn(Set<Long> listId) {
+        List<Job> jobs = jobRepository.findByIdIn(listId);
+
+
+
+        List<Company> companies = companyClient.fetchByIdIn(jobs.stream().map(Job::getCompanyId).toList()).getData();
+
+
+
+        return jobs.stream()
+                .map(j -> JobResponse.builder()
+                        .id(j.getId())
+                        .name(j.getName())
+                        .location(j.getLocation())
+                        .salary(j.getSalary())
+                        .level(j.getLevel())
+                        .description(j.getDescription())
+                        .startDate(j.getStartDate())
+                        .endDate(j.getEndDate())
+                        .active(j.isActive())
+                        .company(companies.stream().filter(c -> c.getId() == j.getCompanyId()).findFirst().get())
+                        .skills(j.getSkills())
+                        .build()).toList();
     }
 
 }

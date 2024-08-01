@@ -20,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/company/fetchById/*",
+            "/company/fetchByIdIn",
             "/company/pagination",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };

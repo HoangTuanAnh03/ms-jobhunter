@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "company-service", url = "${app.services.company}")
 public interface CompanyClient {
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/fetchById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     RestResponse<IntegrateInfoCompanyRes> getById(@PathVariable("id") long id);
 }

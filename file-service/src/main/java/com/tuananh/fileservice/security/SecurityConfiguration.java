@@ -20,6 +20,7 @@ public class SecurityConfiguration {
             "/storage/**",
             "/files",
             "/files/upload/*",
+            "/actuator/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
 

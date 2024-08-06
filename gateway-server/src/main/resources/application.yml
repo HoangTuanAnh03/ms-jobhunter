@@ -11,11 +11,11 @@ spring:
           lowerCaseServiceId: true
 
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:8080
 
 app:
   api-prefix: /api/v1

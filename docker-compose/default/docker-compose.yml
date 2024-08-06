@@ -1,0 +1,225 @@
+services:
+  authsdb:
+    container_name: authsdb
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: authsdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  companiesdb:
+    container_name: companiesdb
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_DATABASE: companiesdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  jobsdb:
+    container_name: jobsdb
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_DATABASE: jobsdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  resumesdb:
+    container_name: resumesdb
+    ports:
+      - 3309:3306
+    environment:
+      MYSQL_DATABASE: resumesdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  configserver:
+    image: "tuananh177/configserver:v1.0"
+    container_name: configserver-ms
+    ports:
+      - "8071:8071"
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  eurekaserver:
+    image: "tuananh177/service-registry:v1.0"
+    container_name: service-registry-ms
+    ports:
+      - "8070:8070"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
+  auth:
+    image: "tuananh177/auth-service:v1.0"
+    container_name: auth-ms
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: "auth-service"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://authsdb:3306/authsdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      authsdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  company:
+    image: "tuananh177/company-service:v1.0"
+    container_name: company-ms
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_APPLICATION_NAME: "company-service"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://companiesdb:3306/companiesdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      companiesdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  job:
+    image: "tuananh177/job-service:v1.0"
+    container_name: job-ms
+    ports:
+      - "8100:8100"
+    environment:
+      SPRING_APPLICATION_NAME: "job-service"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://jobsdb:3306/jobsdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8100/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      jobsdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  resume:
+    image: "tuananh177/resume-service:v1.0"
+    container_name: resume-ms
+    ports:
+      - "8110:8110"
+    environment:
+      SPRING_APPLICATION_NAME: "resume-service"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://resumesdb:3306/resumesdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8110/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      resumesdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  file:
+    image: "tuananh177/file-service:v1.0"
+    container_name: file-ms
+    ports:
+      - "8120:8120"
+    environment:
+      SPRING_APPLICATION_NAME: "file-service"
+    healthcheck:
+      test: "curl --fail --silent localhost:8120/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+
+  gatewayserver:
+    image: "tuananh177/gateway-server:v1.0"
+    container_name: gatewayserver-ms
+    ports:
+      - "8888:8888"
+    depends_on:
+      auth:
+        condition: service_healthy
+      company:
+        condition: service_healthy
+      job:
+        condition: service_healthy
+      resume:
+        condition: service_healthy
+      file:
+        condition: service_healthy
+
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+networks:
+  tuananh177:
+    driver: "bridge"

@@ -28,6 +28,7 @@ public class SecurityConfiguration {
             "/users/updateHR/*",
             "/users/fetchUserById",
             "/auth/**",
+            "/actuator/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
 

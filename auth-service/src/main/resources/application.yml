@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/authsdb
     username: root
-    password: ""
+    password: root
   jpa:
     show-sql: true
     hibernate:
@@ -65,7 +65,7 @@ outbound:
 
 app:
   services:
-    company: http://localhost:8081/company
+    company: http://localhost:8090/company
 
 info:
   app:

@@ -1,12 +1,12 @@
 server:
-  port: 8083
+  port: 8110
 spring:
   application:
     name: "resume-service"
   #  profiles:
   #    active: native
   datasource:
-    url: jdbc:mysql://localhost:3306/resumedb
+    url: jdbc:mysql://localhost:3309/resumesdb
     username: root
     password: ""
   jpa:
@@ -15,7 +15,7 @@ spring:
       ddl-auto: update
   sql:
     init:
-      mode: always
+      mode: never
   config:
     import: "optional:configserver:http://localhost:8071/"
 
@@ -55,8 +55,8 @@ eureka:
 app:
   services:
     auth: http://localhost:8080
-    company: http://localhost:8081
-    job: http://localhost:8082
+    company: http://localhost:8090
+    job: http://localhost:8100
 
 info:
   app:

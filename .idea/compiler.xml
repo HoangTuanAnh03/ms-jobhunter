@@ -19,6 +19,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="configserver" target="17" />
+      <module name="demo" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -27,6 +28,7 @@
       <module name="company-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="configserver" options="-parameters" />
+      <module name="demo" options="-parameters" />
       <module name="file-service" options="-parameters" />
       <module name="gateway-server" options="-parameters" />
       <module name="job-service" options="-parameters" />

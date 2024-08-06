@@ -7,7 +7,7 @@ spring:
     config:
       server:
         git:
-          uri: "https://github.com/eazybytes/eazybytes-config"
+          uri: "https://github.com/HoangTuanAnh03/bank-configs"
 #          https://github.com/eazybytes/eazybytes-config
           default-label: main
           timeout: 5

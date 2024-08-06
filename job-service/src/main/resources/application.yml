@@ -1,21 +1,21 @@
 server:
-  port: 8082
+  port: 8100
 spring:
   application:
     name: "job-service"
   #  profiles:
   #    active: native
   datasource:
-    url: jdbc:mysql://localhost:3306/jobsdb
+    url: jdbc:mysql://localhost:3308/jobsdb
     username: root
-    password: ""
+    password: root
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
   sql:
     init:
-      mode: always
+      mode: never
   config:
     import: "optional:configserver:http://localhost:8071/"
 
@@ -55,7 +55,7 @@ eureka:
 app:
   services:
     auth: http://localhost:8080
-    company: http://localhost:8081
+    company: http://localhost:8090
 
 info:
   app:

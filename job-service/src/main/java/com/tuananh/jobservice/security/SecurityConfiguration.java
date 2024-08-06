@@ -24,6 +24,7 @@ public class SecurityConfiguration {
             "/jobs/pagination",
             "/skills/fetchById/*",
             "/skills/pagination",
+            "/actuator/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
 

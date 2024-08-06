@@ -1,21 +1,21 @@
 server:
-  port: 8081
+  port: 8090
 spring:
   application:
     name: "company-service"
   #  profiles:
   #    active: native
   datasource:
-    url: jdbc:mysql://localhost:3306/companydb
+    url: jdbc:mysql://localhost:3306/companiesdb
     username: root
-    password: ""
+    password: root
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
-  sql:
-    init:
-      mode: always
+#  sql:
+#    init:
+#      mode: never
   config:
     import: "optional:configserver:http://localhost:8071/"
 

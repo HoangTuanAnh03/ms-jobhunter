@@ -1,15 +1,14 @@
 package com.tuananh.authservice.controller;
 
-import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.advice.exception.PermissionException;
+import com.tuananh.authservice.dto.ApiResponse;
 import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
+import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
-import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.service.UserService;
-import com.tuananh.authservice.util.annotation.ApiMessage;
 import com.tuananh.authservice.util.constant.UsersConstants;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
@@ -19,11 +18,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -33,66 +30,87 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/create-password")
-    public ResponseEntity<?> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
+    public ApiResponse<?> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
         userService.createPassword(request);
-        return ResponseEntity.ok()
-                            .body("Password has been created, you could use it to log-in");
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Password has been created, you could use it to log-in")
+                .build();
     }
 
-    @ApiMessage("fetch user by id")
     @GetMapping("/fetchUserById/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") String id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(this.userService.fetchResUserDtoById(id));
+    public ApiResponse<UserResponse> getUserById(@PathVariable("id") String id) {
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch user by id")
+                .data(this.userService.fetchResUserDtoById(id))
+                .build();
     }
 
-    @ApiMessage("fetch users by id")
     @GetMapping("/fetchUserByIdIn")
-    public ResponseEntity<List<SimpInfoUserResponse>> fetchUserByIdIn(@RequestParam("ids") List<String> ids) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(this.userService.fetchUserByIdIn(ids));
+    public ApiResponse<List<SimpInfoUserResponse>> fetchUserByIdIn(@RequestParam("ids") List<String> ids) {
+        return ApiResponse.<List<SimpInfoUserResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch users by ids")
+                .data(this.userService.fetchUserByIdIn(ids))
+                .build();
     }
 
-    @ApiMessage("fetch my info")
     @GetMapping("/my-info")
-    public ResponseEntity<UserResponse> getMyInfo() {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(this.userService.fetchMyInfo());
+    public ApiResponse<UserResponse> getMyInfo() {
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch my info")
+                .data(this.userService.fetchMyInfo())
+                .build();
     }
 
-    @ApiMessage("fetch all users")
     @GetMapping("")
-    public ResponseEntity<ResultPaginationDTO> getAllUser(
+    public ApiResponse<ResultPaginationDTO> getAllUser(
             @Filter Specification<User> spec,
             Pageable pageable) {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(this.userService.fetchAllUser(spec, pageable));
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch all users")
+                .data(this.userService.fetchAllUser(spec, pageable))
+                .build();
     }
 
 
-    @ApiMessage("Update a user")
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updateUserRequest) throws IdInvalidException {
-        return ResponseEntity.ok(this.userService.handleUpdateUser(id, updateUserRequest));
+    public ApiResponse<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updateUserRequest) {
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update a user")
+                .data(this.userService.handleUpdateUser(id, updateUserRequest))
+                .build();
     }
 
-    @ApiMessage("Update role HR")
     @PutMapping("/updateHR/{companyId}")
-    public ResponseEntity<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId) throws PermissionException {
-        return ResponseEntity.ok(this.userService.handleUpdateHR(companyId));
+    public ApiResponse<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId) throws PermissionException {
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update role HR")
+                .data(this.userService.handleUpdateHR(companyId))
+                .build();
     }
 
-    @ApiMessage("Delete a user")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("id") String id) {
+    public ApiResponse<?> deleteUser(@PathVariable("id") String id) {
         boolean isDeleted = userService.handleDeleteUser(id);
         if (isDeleted) {
-            return ResponseEntity.ok(UsersConstants.MESSAGE_200);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(UsersConstants.MESSAGE_200)
+                    .data(null)
+                    .build();
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(UsersConstants.MESSAGE_417_DELETE);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.EXPECTATION_FAILED.value())
+                    .message(UsersConstants.MESSAGE_417_DELETE)
+                    .data(null)
+                    .build();
         }
     }
 }

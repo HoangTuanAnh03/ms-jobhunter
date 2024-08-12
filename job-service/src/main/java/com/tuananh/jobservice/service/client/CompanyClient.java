@@ -1,7 +1,7 @@
 package com.tuananh.jobservice.service.client;
 
 import com.tuananh.jobservice.config.AuthenticationRequestInterceptor;
-import com.tuananh.jobservice.dto.RestResponse;
+import com.tuananh.jobservice.dto.ApiResponse;
 import com.tuananh.jobservice.dto.response.Company;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,5 +14,5 @@ import java.util.List;
         configuration = AuthenticationRequestInterceptor.class)
 public interface CompanyClient {
     @GetMapping("/company/fetchByIdIn")
-    RestResponse<List<Company>> fetchByIdIn(@RequestParam List<Long> ids);
+    ApiResponse<List<Company>> fetchByIdIn(@RequestParam List<Long> ids);
 }

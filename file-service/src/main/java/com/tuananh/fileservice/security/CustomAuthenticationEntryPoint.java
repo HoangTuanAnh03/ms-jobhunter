@@ -1,7 +1,7 @@
 package com.tuananh.fileservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tuananh.fileservice.dto.RestResponse;
+import com.tuananh.fileservice.dto.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,14 +25,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          AuthenticationException authException) throws IOException, ServletException {
         this.delegate.commence(request, response, authException);
 
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+        ApiResponse<Object> res = new ApiResponse<Object>();
+        res.setCode(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         String errorMessage = Optional.ofNullable(authException.getCause()) // NULL
                 .map(Throwable::getMessage)
                 .orElse(authException.getMessage());
-        res.setError(errorMessage);
+        res.setMessage(errorMessage);
 
         res.setMessage("Token is invalid (expired, not in the correct format, or does not transmit JWT in the header)...");
         ObjectMapper mapper = new ObjectMapper();

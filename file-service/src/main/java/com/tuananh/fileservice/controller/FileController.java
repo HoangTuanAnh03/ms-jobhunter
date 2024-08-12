@@ -1,10 +1,10 @@
 package com.tuananh.fileservice.controller;
 
 import com.tuananh.fileservice.advice.exception.StorageException;
+import com.tuananh.fileservice.dto.ApiResponse;
 import com.tuananh.fileservice.dto.response.ResUploadFileDTO;
 import com.tuananh.fileservice.service.FileService;
 import com.tuananh.fileservice.util.NameFolders;
-import com.tuananh.fileservice.util.annotation.ApiMessage;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,8 +34,7 @@ public class FileController {
     FileService fileService;
 
     @PostMapping("/upload/logo")
-    @ApiMessage("Upload image logo")
-    public ResponseEntity<ResUploadFileDTO> uploadLogo(
+    public ApiResponse<ResUploadFileDTO> uploadLogo(
             @RequestParam(name = "file", required = false) MultipartFile file
     ) throws URISyntaxException, IOException, StorageException {
         // valid type file
@@ -45,12 +44,15 @@ public class FileController {
 
         ResUploadFileDTO res = new ResUploadFileDTO(uploadFile, Instant.now());
 
-        return ResponseEntity.ok().body(res);
+        return ApiResponse.<ResUploadFileDTO>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Upload image logo")
+                .data(res)
+                .build();
     }
 
     @PostMapping("/upload/coverImage")
-    @ApiMessage("Upload cover image")
-    public ResponseEntity<ResUploadFileDTO> uploadCoverImage(
+    public ApiResponse<ResUploadFileDTO> uploadCoverImage(
             @RequestParam(name = "file", required = false) MultipartFile file
     ) throws URISyntaxException, IOException, StorageException {
         // valid type file
@@ -60,12 +62,15 @@ public class FileController {
 
         ResUploadFileDTO res = new ResUploadFileDTO(uploadFile, Instant.now());
 
-        return ResponseEntity.ok().body(res);
+        return ApiResponse.<ResUploadFileDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Upload cover image")
+                .data(res)
+                .build();
     }
 
     @PostMapping("/upload/avatar")
-    @ApiMessage("Upload image avatar")
-    public ResponseEntity<ResUploadFileDTO> uploadAvatar(
+    public ApiResponse<ResUploadFileDTO> uploadAvatar(
             @RequestParam(name = "file", required = false) MultipartFile file
     ) throws URISyntaxException, IOException, StorageException {
         // valid type file
@@ -75,12 +80,15 @@ public class FileController {
 
         ResUploadFileDTO res = new ResUploadFileDTO(uploadFile, Instant.now());
 
-        return ResponseEntity.ok().body(res);
+        return ApiResponse.<ResUploadFileDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Upload image avatar")
+                .data(res)
+                .build();
     }
 
     @PostMapping("/upload/multiResume")
-    @ApiMessage("Upload multi resume")
-    public ResponseEntity<ResUploadFileDTO> uploadMultiFiles(@RequestParam("files") MultipartFile[] files) throws StorageException {
+    public ApiResponse<ResUploadFileDTO> uploadMultiFiles(@RequestParam("files") MultipartFile[] files) throws StorageException {
         try {
             List<String> fileNames = new ArrayList<>();
 
@@ -95,15 +103,18 @@ public class FileController {
 
             ResUploadFileDTO res = new ResUploadFileDTO(fileNames, Instant.now());
 
-            return ResponseEntity.status(HttpStatus.OK).body(res);
+            return ApiResponse.<ResUploadFileDTO>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message("Upload multi resume")
+                    .data(res)
+                    .build();
         } catch (Exception e) {
             throw new StorageException("Fail to upload files! " + e.getMessage());
         }
     }
 
     @GetMapping("")
-    @ApiMessage("Download a file")
-    public ResponseEntity<Resource> download(
+    public ResponseEntity<ApiResponse<Resource>> download(
             @RequestParam(name = "fileName", required = false) String fileName,
             @RequestParam(name = "folder", required = false) String folder)
             throws StorageException, URISyntaxException, FileNotFoundException {
@@ -120,10 +131,16 @@ public class FileController {
         // download a file
         InputStreamResource resource = this.fileService.getResource(fileName, folder);
 
+        ApiResponse<Resource> result = ApiResponse.<Resource>builder()
+                .code(HttpStatus.OK.value())
+                .message("Download a file")
+                .data(resource)
+                .build();
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentLength(fileLength)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+                .body(result);
     }
 }

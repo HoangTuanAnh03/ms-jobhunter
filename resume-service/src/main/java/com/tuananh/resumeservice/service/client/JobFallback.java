@@ -1,7 +1,7 @@
 package com.tuananh.resumeservice.service.client;
 
 
-import com.tuananh.resumeservice.dto.RestResponse;
+import com.tuananh.resumeservice.dto.ApiResponse;
 import com.tuananh.resumeservice.dto.response.JobResponse;
 import com.tuananh.resumeservice.entity.Job;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ public class JobFallback implements JobClient{
      * @return
      */
     @Override
-    public RestResponse<Job> getById(long id) {
+    public ApiResponse<Job> getById(long id) {
         return null;
     }
 
@@ -26,7 +26,7 @@ public class JobFallback implements JobClient{
      * @return
      */
     @Override
-    public RestResponse<List<JobResponse>> fetchByIdIn(Set<Long> ids) {
+    public ApiResponse<List<JobResponse>> fetchByIdIn(Set<Long> ids) {
         return null;
     }
 }

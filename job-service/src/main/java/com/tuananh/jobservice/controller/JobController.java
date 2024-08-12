@@ -2,13 +2,13 @@ package com.tuananh.jobservice.controller;
 
 
 import com.tuananh.jobservice.advice.exception.PermissionException;
+import com.tuananh.jobservice.dto.ApiResponse;
 import com.tuananh.jobservice.dto.request.CreateJobRequest;
 import com.tuananh.jobservice.dto.request.UpdateJobRequest;
 import com.tuananh.jobservice.dto.response.JobResponse;
 import com.tuananh.jobservice.dto.response.ResultPaginationDTO;
 import com.tuananh.jobservice.entity.Job;
 import com.tuananh.jobservice.service.JobService;
-import com.tuananh.jobservice.util.annotation.ApiMessage;
 import com.tuananh.jobservice.util.constant.SkillConstants;
 import com.turkraft.springfilter.boot.Filter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,51 +41,67 @@ public class JobController {
     JobService jobService;
 
     @GetMapping("/fetchById/{id}")
-    @ApiMessage("Fetch job by id")
-    public ResponseEntity<Job> getById(@PathVariable("id") long id) {
-        return ResponseEntity.ok().body(jobService.fetchById(id));
+    public ApiResponse<Job> getById(@PathVariable("id") long id) {
+        return ApiResponse.<Job>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch job by id")
+                .data(jobService.fetchById(id))
+                .build();
     }
 
     @GetMapping("/fetchByIdIn")
-    @ApiMessage("Fetch job by ids")
-    public ResponseEntity<List<JobResponse>> fetchByIdIn(@RequestParam Set<Long> ids) {
-        return ResponseEntity.ok().body(jobService.fetchByIdIn(ids));
+    public ApiResponse<List<JobResponse>> fetchByIdIn(@RequestParam Set<Long> ids) {
+        return ApiResponse.<List<JobResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch job by ids")
+                .data(jobService.fetchByIdIn(ids))
+                .build();
     }
 
     @GetMapping("/pagination")
-    @ApiMessage("Fetch skills")
-    public ResponseEntity<ResultPaginationDTO> fetchPagination(
+    public ApiResponse<ResultPaginationDTO> fetchPagination(
             @Filter Specification<Job> spec, Pageable pageable) {
 
-        return ResponseEntity.ok(this.jobService.fetchPagination(spec, pageable));
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch skills")
+                .data(this.jobService.fetchPagination(spec, pageable))
+                .build();
     }
 
     @PostMapping("/create")
-    @ApiMessage("Create a job")
-    public ResponseEntity<Job> create(@Valid @RequestBody CreateJobRequest jobRequest) {
+    public ApiResponse<Job> create(@Valid @RequestBody CreateJobRequest jobRequest) {
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.jobService.create(jobRequest));
+        return ApiResponse.<Job>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Create a job")
+                .data(this.jobService.create(jobRequest))
+                .build();
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update a job")
-    public ResponseEntity<Job> update(@PathVariable("id") long id, @Valid @RequestBody UpdateJobRequest jobRequest)
+    public ApiResponse<Job> update(@PathVariable("id") long id, @Valid @RequestBody UpdateJobRequest jobRequest)
             throws PermissionException {
-        return ResponseEntity.ok().body(this.jobService.update(id, jobRequest));
+        return ApiResponse.<Job>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update a job")
+                .data(this.jobService.update(id, jobRequest))
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a job")
-    public ResponseEntity<?> delete(@PathVariable("id") long id) throws PermissionException {
+    public ApiResponse<?> delete(@PathVariable("id") long id) throws PermissionException {
         boolean isDeleted = jobService.delete(id);
         if (isDeleted) {
-            return ResponseEntity.ok()
-                    .body(SkillConstants.MESSAGE_200);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(SkillConstants.MESSAGE_200)
+                    .build();
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(SkillConstants.MESSAGE_417_DELETE);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.EXPECTATION_FAILED.value())
+                    .message(SkillConstants.MESSAGE_417_DELETE)
+                    .build();
         }
     }
 }

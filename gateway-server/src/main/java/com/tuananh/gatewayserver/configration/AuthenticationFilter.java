@@ -2,7 +2,7 @@ package com.tuananh.gatewayserver.configration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tuananh.gatewayserver.dto.response.RestResponse;
+import com.tuananh.gatewayserver.dto.ApiResponse;
 import com.tuananh.gatewayserver.service.AuthService;
 import com.tuananh.gatewayserver.utils.CustomHeaders;
 import lombok.AccessLevel;
@@ -90,9 +90,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     Mono<Void> unauthenticated(ServerHttpResponse response){
-        RestResponse<?> apiResponse = RestResponse.builder()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .error("Unauthenticated1")
+        ApiResponse<?> apiResponse = ApiResponse.builder()
+                .code(HttpStatus.UNAUTHORIZED.value())
                 .message("Unauthenticated1")
                 .data(null)
                 .build();

@@ -1,6 +1,7 @@
 package com.tuananh.companyservice.controller;
 
 
+import com.tuananh.companyservice.dto.ApiResponse;
 import com.tuananh.companyservice.dto.request.ChangeStatusCompanyRequest;
 import com.tuananh.companyservice.dto.request.CreateCompanyRequest;
 import com.tuananh.companyservice.dto.request.UpdateCompanyRequest;
@@ -8,7 +9,6 @@ import com.tuananh.companyservice.dto.response.IntegrateInfoCompanyRes;
 import com.tuananh.companyservice.dto.response.ResultPaginationDTO;
 import com.tuananh.companyservice.entity.Company;
 import com.tuananh.companyservice.service.CompanyService;
-import com.tuananh.companyservice.util.annotation.ApiMessage;
 import com.tuananh.companyservice.util.constant.CompanyConstants;
 import com.turkraft.springfilter.boot.Filter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,11 +19,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -42,54 +40,74 @@ public class CompanyController {
     CompanyService companyService;
 
     @GetMapping("/fetchById/{id}")
-    @ApiMessage("Fetch company by id")
-    public ResponseEntity<IntegrateInfoCompanyRes> fetchById(@PathVariable("id") long id) {
-        return ResponseEntity.ok().body(this.companyService.fetchById(id));
+    public ApiResponse<IntegrateInfoCompanyRes> fetchById(@PathVariable("id") long id) {
+        return ApiResponse.<IntegrateInfoCompanyRes>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch company by id")
+                .data(this.companyService.fetchById(id))
+                .build();
     }
 
     @GetMapping("/fetchByIdIn")
-    @ApiMessage("Fetch companies by ids")
-    public ResponseEntity<List<Company>> fetchByIdIn(@RequestParam List<Long> ids) {
-        return ResponseEntity.ok().body(this.companyService.fetchByIdIn(ids));
+    public ApiResponse<List<Company>> fetchByIdIn(@RequestParam List<Long> ids) {
+        return ApiResponse.<List<Company>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch companies by ids")
+                .data(this.companyService.fetchByIdIn(ids))
+                .build();
     }
 
     @GetMapping("/pagination")
-    @ApiMessage("Fetch companies")
-    public ResponseEntity<ResultPaginationDTO> getCompanies(
+    public ApiResponse<ResultPaginationDTO> getCompanies(
             @Filter Specification<Company> spec, Pageable pageable) {
 
-        return ResponseEntity.ok(this.companyService.getCompanies(spec, pageable));
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch companies")
+                .data(this.companyService.getCompanies(spec, pageable))
+                .build();
     }
 
     @PostMapping("")
-    @ApiMessage("Create a company")
-    public ResponseEntity<Company> create(@Valid @RequestBody CreateCompanyRequest companyRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.companyService.create(companyRequest));
+    public ApiResponse<Company> create(@Valid @RequestBody CreateCompanyRequest companyRequest) {
+        return ApiResponse.<Company>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Create a company")
+                .data(this.companyService.create(companyRequest))
+                .build();
     }
 
     @PutMapping("/changeStatus/{id}")
-    @ApiMessage("Change status a company")
-    public ResponseEntity<Company> changeStatus(@PathVariable long id, @Valid @RequestBody ChangeStatusCompanyRequest changeStatusCompanyRequest) {
-        return ResponseEntity.ok().body(this.companyService.changeStatus(id, changeStatusCompanyRequest));
+    public ApiResponse<Company> changeStatus(@PathVariable long id, @Valid @RequestBody ChangeStatusCompanyRequest changeStatusCompanyRequest) {
+        return ApiResponse.<Company>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change status a company")
+                .data(this.companyService.changeStatus(id, changeStatusCompanyRequest))
+                .build();
     }
 
     @PutMapping("")
-    @ApiMessage("Update a company")
-    public ResponseEntity<Company> update(@Valid @RequestBody UpdateCompanyRequest updateCompanyRequest) {
-        return ResponseEntity.ok().body(this.companyService.update(updateCompanyRequest));
+    public ApiResponse<Company> update(@Valid @RequestBody UpdateCompanyRequest updateCompanyRequest) {
+        return ApiResponse.<Company>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update a company")
+                .data(this.companyService.update(updateCompanyRequest))
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a company")
-    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+    public ApiResponse<?> delete(@PathVariable("id") long id) {
         boolean isDeleted = companyService.delete(id);
         if (isDeleted) {
-            return ResponseEntity.ok(CompanyConstants.MESSAGE_200);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(CompanyConstants.MESSAGE_200)
+                    .build();
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(CompanyConstants.MESSAGE_417_DELETE);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.EXPECTATION_FAILED.value())
+                    .message(CompanyConstants.MESSAGE_417_DELETE)
+                    .build();
         }
     }
 }

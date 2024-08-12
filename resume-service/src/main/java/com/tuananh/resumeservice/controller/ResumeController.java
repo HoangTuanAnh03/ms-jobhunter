@@ -2,25 +2,21 @@ package com.tuananh.resumeservice.controller;
 
 
 import com.tuananh.resumeservice.advice.exception.PermissionException;
+import com.tuananh.resumeservice.dto.ApiResponse;
 import com.tuananh.resumeservice.dto.request.CreateResumeRequest;
 import com.tuananh.resumeservice.dto.request.UpdateResumeRequest;
 import com.tuananh.resumeservice.dto.response.ResultPaginationDTO;
 import com.tuananh.resumeservice.dto.response.ResumeResponse;
-import com.tuananh.resumeservice.entity.Resume;
 import com.tuananh.resumeservice.service.ResumeService;
 import com.tuananh.resumeservice.util.CustomHeaders;
-import com.tuananh.resumeservice.util.annotation.ApiMessage;
 import com.tuananh.resumeservice.util.constant.ResumeConstants;
-import com.turkraft.springfilter.boot.Filter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -39,51 +35,59 @@ import org.springframework.web.bind.annotation.*;
 public class ResumeController {
     ResumeService resumeService;
 
-//    @GetMapping("/fetchById/{id}")
-//    @ApiMessage("Fetch resume by id")
-//    public ResponseEntity<Resume> getById(@PathVariable("id") long id) {
-//        return ResponseEntity.ok().body(resumeService.fetchById(id));
-//    }
 
     @GetMapping("/myResume/pagination")
-    @ApiMessage("Fetch my resume")
-    public ResponseEntity<ResultPaginationDTO> fetchMyResume(@RequestHeader(CustomHeaders.X_AUTH_USER_ID) String id, Pageable pageable) {
+    public ApiResponse<ResultPaginationDTO> fetchMyResume(@RequestHeader(CustomHeaders.X_AUTH_USER_ID) String id, Pageable pageable) {
 
-        return ResponseEntity.ok(this.resumeService.fetchMyResume(id, pageable));
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch my resume")
+                .data(this.resumeService.fetchMyResume(id, pageable))
+                .build();
     }
 
     @GetMapping("/resumeByJob/pagination")
-    @ApiMessage("Fetch resume by jobId")
-    public ResponseEntity<ResultPaginationDTO> fetchResumeByJob(@RequestParam long jobId, Pageable pageable) throws PermissionException {
+    public ApiResponse<ResultPaginationDTO> fetchResumeByJob(@RequestParam long jobId, Pageable pageable) throws PermissionException {
 
-        return ResponseEntity.ok(this.resumeService.fetchResumeByJob(jobId, pageable));
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch resume by jobId")
+                .data(this.resumeService.fetchResumeByJob(jobId, pageable))
+                .build();
     }
 
     @PostMapping("/create")
-    @ApiMessage("Create a resume")
-    public ResponseEntity<ResumeResponse> create(@Valid @RequestBody CreateResumeRequest resumeRequest) throws Exception {
+    public ApiResponse<ResumeResponse> create(@Valid @RequestBody CreateResumeRequest resumeRequest) throws Exception {
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.resumeService.create(resumeRequest));
+        return ApiResponse.<ResumeResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Create a resume")
+                .data(this.resumeService.create(resumeRequest))
+                .build();
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update a resume")
-    public ResponseEntity<ResumeResponse> update(@PathVariable("id") long id, @Valid @RequestBody UpdateResumeRequest resumeRequest) {
-        return ResponseEntity.ok().body(this.resumeService.update(id, resumeRequest));
+    public ApiResponse<ResumeResponse> update(@PathVariable("id") long id, @Valid @RequestBody UpdateResumeRequest resumeRequest) {
+        return ApiResponse.<ResumeResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update a resume")
+                .data(this.resumeService.update(id, resumeRequest))
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a resume")
-    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+    public ApiResponse<?> delete(@PathVariable("id") long id) {
         boolean isDeleted = resumeService.delete(id);
         if (isDeleted) {
-            return ResponseEntity.ok()
-                    .body(ResumeConstants.MESSAGE_200);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(ResumeConstants.MESSAGE_200)
+                    .build();
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(ResumeConstants.MESSAGE_417_DELETE);
+            return ApiResponse.<String>builder()
+                    .code(HttpStatus.EXPECTATION_FAILED.value())
+                    .message(ResumeConstants.MESSAGE_417_DELETE)
+                    .build();
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.tuananh.authservice.advice;
 
 import com.tuananh.authservice.advice.exception.*;
+import com.tuananh.authservice.dto.ApiResponse;
+import jakarta.validation.ConstraintViolation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,33 +12,34 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
-import com.tuananh.authservice.dto.RestResponse;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalException {
+    private static final String MIN_ATTRIBUTE = "min";
 
     // handle all exception
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestResponse<Object>> handleAllException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        res.setMessage(ex.getMessage());
-        res.setError("Internal Server Error");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+    public ResponseEntity<ApiResponse<Object>> handleAllException(Exception ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+
+        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<RestResponse<Object>> handleAppException(AppException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleAppException(AppException ex) {
         ErrorCode errorCode = ex.getErrorCode();
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(errorCode.getStatusCode().value());
-        res.setMessage(errorCode.getMessage());
-        res.setError(errorCode.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(errorCode.getStatusCode().value());
+        apiResponse.setMessage(errorCode.getMessage());
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = {
@@ -44,36 +47,33 @@ public class GlobalException {
             BadCredentialsException.class,
             IdInvalidException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setMessage(ex.getMessage());
-        res.setError("Exception occurs...");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    public ResponseEntity<ApiResponse<Object>> handleIdException(Exception ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(HttpStatus.BAD_REQUEST.value());
+        apiResponse.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
     @ExceptionHandler(value = {
             ResourceNotFoundException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handleNotFoundException(ResourceNotFoundException ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.NOT_FOUND.value());
-        res.setMessage(ex.getMessage());
-        res.setError("404 Not Found...");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    public ResponseEntity<ApiResponse<Object>> handleNotFoundException(ResourceNotFoundException ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(HttpStatus.NOT_FOUND.value());
+        apiResponse.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RestResponse<Object>> validationError(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Object>> validationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         final List<FieldError> fieldErrors = result.getFieldErrors();
 
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setError(ex.getBody().getDetail());
+        ApiResponse<Object> res = new ApiResponse<>();
+        res.setCode(HttpStatus.BAD_REQUEST.value());
 
         List<String> errors = fieldErrors.stream().map(f -> String.format("%s : %s", f.getField(), f.getDefaultMessage())).collect(Collectors.toList());
-        res.setMessage(errors.size() > 1 ? errors : errors.get(0));
+        res.setMessage(errors.size() > 1 ? String.valueOf(errors) : errors.get(0));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
@@ -81,33 +81,30 @@ public class GlobalException {
     @ExceptionHandler(value = {
             StorageException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handleFileUploadException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setMessage(ex.getMessage());
-        res.setError("Exception upload file...");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    public ResponseEntity<ApiResponse<Object>> handleFileUploadException(Exception ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(HttpStatus.BAD_REQUEST.value());
+        apiResponse.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
     @ExceptionHandler(value = {
             PermissionException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handlePermissionException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.FORBIDDEN.value());
-        res.setError("Forbidden");
-        res.setMessage(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(res);
+    public ResponseEntity<ApiResponse<Object>> handlePermissionException(Exception ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(HttpStatus.FORBIDDEN.value());
+        apiResponse.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse);
     }
 
     @ExceptionHandler(value = {
             DuplicateRecordException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handleDuplicateException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.CONFLICT.value());
-        res.setError("Duplicate Record");
-        res.setMessage(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateException(Exception ex) {
+        ApiResponse<Object> apiResponse = new ApiResponse<Object>();
+        apiResponse.setCode(HttpStatus.CONFLICT.value());
+        apiResponse.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
     }
 }

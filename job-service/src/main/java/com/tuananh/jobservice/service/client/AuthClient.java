@@ -1,7 +1,7 @@
 package com.tuananh.jobservice.service.client;
 
 import com.tuananh.jobservice.config.AuthenticationRequestInterceptor;
-import com.tuananh.jobservice.dto.RestResponse;
+import com.tuananh.jobservice.dto.ApiResponse;
 import com.tuananh.jobservice.dto.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
             configuration = AuthenticationRequestInterceptor.class)
 public interface AuthClient {
     @GetMapping(value = "/users/my-info", produces = MediaType.APPLICATION_JSON_VALUE)
-    RestResponse<UserResponse> getInfo();
+    ApiResponse<UserResponse> getInfo();
 
     @PutMapping(value = "/users/updateHR/{companyId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    RestResponse<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId);
+    ApiResponse<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId);
 }

@@ -1,13 +1,11 @@
 package com.tuananh.authservice.controller;
 
 import com.tuananh.authservice.advice.ErrorCode;
-import com.tuananh.authservice.dto.RestResponse;
 import com.tuananh.authservice.dto.request.CreateRoleRequest;
 import com.tuananh.authservice.dto.request.UpdateRoleRequest;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.service.RoleService;
-import com.tuananh.authservice.util.annotation.ApiMessage;
 import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.util.constant.UsersConstants;
 import com.turkraft.springfilter.boot.Filter;
@@ -24,7 +22,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -56,29 +53,35 @@ public class RoleController {
                     responseCode = "500",
                     description = "HTTP Status Internal Server Error",
                     content = @Content(
-                            schema = @Schema(implementation = RestResponse.class)
+                            schema = @Schema(implementation = ApiResponse.class)
                     )
             )
     }
     )
     @GetMapping("/{id}")
-    @ApiMessage("Fetch role by id")
-    public ResponseEntity<Role> getById(@PathVariable("id") long id) throws IdInvalidException {
+    public com.tuananh.authservice.dto.ApiResponse<Role> getById(@PathVariable("id") long id) throws IdInvalidException {
 
         Role role = this.roleService.fetchById(id);
         if (role == null) {
             throw new IdInvalidException("RoleId = " + id + " not exited");
         }
 
-        return ResponseEntity.ok().body(role);
+        return com.tuananh.authservice.dto.ApiResponse.<Role>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch role by id")
+                .data(role)
+                .build();
     }
 
     @GetMapping("")
-    @ApiMessage("Fetch roles")
-    public ResponseEntity<ResultPaginationDTO> getPermissions(
+    public com.tuananh.authservice.dto.ApiResponse<ResultPaginationDTO> getPermissions(
             @Filter Specification<Role> spec, Pageable pageable) {
 
-        return ResponseEntity.ok(this.roleService.getRoles(spec, pageable));
+        return com.tuananh.authservice.dto.ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch roles")
+                .data(this.roleService.getRoles(spec, pageable))
+                .build();
     }
 
     @Operation(
@@ -94,17 +97,19 @@ public class RoleController {
                     responseCode = "500",
                     description = "HTTP Status Internal Server Error",
                     content = @Content(
-                            schema = @Schema(implementation = RestResponse.class)
+                            schema = @Schema(implementation = ApiResponse.class)
                     )
             )
     }
     )
     @PostMapping("")
-    @ApiMessage("Create a role")
-    public ResponseEntity<Role> create(@Valid @RequestBody CreateRoleRequest roleRequest) {
+    public com.tuananh.authservice.dto.ApiResponse<Role> create(@Valid @RequestBody CreateRoleRequest roleRequest) {
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.roleService.create(roleRequest));
+        return com.tuananh.authservice.dto.ApiResponse.<Role>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Create a role")
+                .data(this.roleService.create(roleRequest))
+                .build();
     }
 
     @Operation(
@@ -126,9 +131,13 @@ public class RoleController {
     }
     )
     @PutMapping("/{id}")
-    @ApiMessage("Update a role")
-    public ResponseEntity<Role> update(@PathVariable("id") int id, @Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
-        return ResponseEntity.ok().body(this.roleService.update(id, updateRoleRequest));
+    public com.tuananh.authservice.dto.ApiResponse<Role> update(@PathVariable("id") int id, @Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
+
+        return com.tuananh.authservice.dto.ApiResponse.<Role>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Update a role")
+                .data(this.roleService.update(id, updateRoleRequest))
+                .build();
     }
 
     @Operation(
@@ -148,21 +157,26 @@ public class RoleController {
                     responseCode = "500",
                     description = "HTTP Status Internal Server Error",
                     content = @Content(
-                            schema = @Schema(implementation = RestResponse.class)
+                            schema = @Schema(implementation = ApiResponse.class)
                     )
             )
     }
     )
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a role")
-    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+    public com.tuananh.authservice.dto.ApiResponse<?> delete(@PathVariable("id") long id) {
         boolean isDeleted = roleService.delete(id);
         if (isDeleted) {
-            return ResponseEntity.ok(UsersConstants.MESSAGE_200);
+            return com.tuananh.authservice.dto.ApiResponse.<String>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(UsersConstants.MESSAGE_200)
+                    .data(null)
+                    .build();
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(UsersConstants.MESSAGE_417_DELETE);
+            return com.tuananh.authservice.dto.ApiResponse.<String>builder()
+                    .code(HttpStatus.EXPECTATION_FAILED.value())
+                    .message(UsersConstants.MESSAGE_417_DELETE)
+                    .data(null)
+                    .build();
         }
     }
 }

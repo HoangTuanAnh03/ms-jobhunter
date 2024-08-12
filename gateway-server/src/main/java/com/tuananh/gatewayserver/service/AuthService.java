@@ -1,8 +1,8 @@
 package com.tuananh.gatewayserver.service;
 
+import com.tuananh.gatewayserver.dto.ApiResponse;
 import com.tuananh.gatewayserver.dto.request.IntrospectRequest;
 import com.tuananh.gatewayserver.dto.response.IntrospectResponse;
-import com.tuananh.gatewayserver.dto.response.RestResponse;
 import com.tuananh.gatewayserver.service.client.AuthClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public class AuthService {
     AuthClient authClient;
 
-    public Mono<RestResponse<IntrospectResponse>> introspect(String token){
+    public Mono<ApiResponse<IntrospectResponse>> introspect(String token){
         return authClient.introspect(IntrospectRequest.builder()
                 .token(token)
                 .build());

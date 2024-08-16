@@ -75,3 +75,11 @@ info:
     name: "auth-service"
     description: "JobHunter Auth Application"
     version: "1.0"
+
+logging:
+  level:
+    com:
+      tuananh:
+        authservice: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

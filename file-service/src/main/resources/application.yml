@@ -62,3 +62,11 @@ info:
     name: "file-service"
     description: "JobHunter Company Application"
     version: "1.0"
+
+logging:
+  level:
+    com:
+      tuananh:
+        fileservice: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

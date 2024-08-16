@@ -53,3 +53,11 @@ info:
     name: "gateway-server"
     description: "JobHunter Gateway Server Application"
     version: "1.0.0"
+
+logging:
+  level:
+    com:
+      tuananh:
+        gatewayserver: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

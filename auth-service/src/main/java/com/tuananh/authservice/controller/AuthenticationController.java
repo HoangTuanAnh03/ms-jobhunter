@@ -7,9 +7,9 @@ import com.tuananh.authservice.dto.ApiResponse;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
+import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
-import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.service.AuthenticationService;
 import com.tuananh.authservice.service.UserService;
@@ -18,6 +18,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -33,6 +35,7 @@ import java.text.ParseException;
 public class AuthenticationController {
     AuthenticationService authenticationService;
     UserService userService;
+    Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     CookieUtil cookieUtil;
 
     @PostMapping("/outbound/authentication")
@@ -71,11 +74,13 @@ public class AuthenticationController {
         // set refreshToken Cookie
         ResponseCookie resCookies = cookieUtil.createRefreshToken(infoAuthenticationDTO.getRefreshToken());
 
+        logger.debug("fetchCustomerDetails method start");
         ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("User login")
                 .data(infoAuthenticationDTO.getAuthenticationResponse())
                 .build();
+        logger.debug("fetchCustomerDetails method end");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())

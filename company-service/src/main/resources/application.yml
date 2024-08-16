@@ -64,3 +64,11 @@ info:
     name: "company-service"
     description: "JobHunter Company Application"
     version: "1.0"
+
+logging:
+  level:
+    com:
+      tuananh:
+        companyservice: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

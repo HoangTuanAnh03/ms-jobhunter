@@ -26,17 +26,16 @@ public class CreateUserRequest {
 
     @Size(min = 8, max = 20, message = "invalid password")
     String password;
-
-    @Past(message = "Date of birth must be before current date")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    LocalDate dob;
-
-    @JsonProperty("mobile_number")
-    @Pattern(regexp = "^0\\d{9}$", message = "Invalid phone number")
-    String mobileNumber;
-
-    @Enumerated(EnumType.STRING)
-    GenderEnum gender;
-
-    String address;
+//    @Past(message = "Date of birth must be before current date")
+//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+//    LocalDate dob;
+//
+//    @JsonProperty("mobile_number")
+//    @Pattern(regexp = "^0\\d{9}$", message = "Invalid phone number")
+//    String mobileNumber;
+//
+//    @Enumerated(EnumType.STRING)
+//    GenderEnum gender;
+//
+//    String address;
 }

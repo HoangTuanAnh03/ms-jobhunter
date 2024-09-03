@@ -23,7 +23,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
 //            "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh",
-//            "/users/registration",
+            "/auth/register",
             "/auth/outbound/authentication",
             "/users/updateHR/*",
             "/users/fetchUserById",

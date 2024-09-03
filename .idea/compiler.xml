@@ -15,11 +15,13 @@
         <module name="company-service" />
         <module name="file-service" />
         <module name="service-registry" />
+        <module name="notification-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="configserver" target="17" />
       <module name="demo" target="17" />
+      <module name="notification" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -32,6 +34,8 @@
       <module name="file-service" options="-parameters" />
       <module name="gateway-server" options="-parameters" />
       <module name="job-service" options="-parameters" />
+      <module name="notification" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="resume-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>

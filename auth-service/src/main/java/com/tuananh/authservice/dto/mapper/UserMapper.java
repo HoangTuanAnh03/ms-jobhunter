@@ -40,7 +40,8 @@ public class UserMapper {
                         .address(user.getAddress())
                         .email(user.getEmail())
                         .company(companyUser)
-                        .role(roleUser).noPassword(!StringUtils.hasText(user.getPassword()))
+                        .role(roleUser)
+                        .noPassword(!StringUtils.hasText(user.getPassword()))
                         .createdAt(user.getCreatedAt())
                         .updatedAt(user.getUpdatedAt())
                         .build();

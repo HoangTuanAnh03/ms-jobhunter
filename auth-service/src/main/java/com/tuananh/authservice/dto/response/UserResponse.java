@@ -27,10 +27,11 @@ public class UserResponse {
     @JsonProperty("created_at")
     LocalDateTime createdAt;
 
+    @JsonProperty("no_password")
+    Boolean noPassword;
+
     CompanyUser company;
     RoleUser role;
-
-    Boolean noPassword;
 
     @Data
     @NoArgsConstructor

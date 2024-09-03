@@ -8,12 +8,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationResponse {
     @JsonProperty("access_token")
-    private String accessToken;
+    String accessToken;
 
-    private UserLogin user;
+    UserLogin user;
 
     @Data
     @NoArgsConstructor
@@ -25,25 +25,6 @@ public class AuthenticationResponse {
         String email;
         String name;
         String role;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class UserGetAccount {
-        UserLogin user;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class UserInsideToken {
-        long id;
-        String email;
-        String name;
+        Boolean noPassword;
     }
 }

@@ -22,7 +22,7 @@ public interface AuthenticationService {
      * @param request -AuthenticationRequest Object
      * @return User Details based on a given email and password
      */
-    InfoAuthenticationDTO authenticate(AuthenticationRequest request);
+    AuthenticationResponse authenticate(AuthenticationRequest request);
 
     /**
      * @param refreshToken - refreshToken get from cookie
@@ -33,13 +33,13 @@ public interface AuthenticationService {
      * @param refreshToken - refreshToken get from cookie
      * @return User Details based on a given refreshToken
      */
-    InfoAuthenticationDTO refreshToken(String refreshToken) throws ParseException, JOSEException;
+    AuthenticationResponse refreshToken(String refreshToken) throws ParseException, JOSEException;
 
     /**
      * @param user - User Object
      * @return Convert User Object to InfoAuthenticationDTO Object
      */
-    InfoAuthenticationDTO createInfoAuthenticationDTO(User user);
+    AuthenticationResponse createAuthenticationResponse(User user);
 
-    InfoAuthenticationDTO outboundAuthenticate(String code);
+    AuthenticationResponse outboundAuthenticate(String code);
 }

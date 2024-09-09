@@ -1,19 +1,17 @@
 package com.tuananh.authservice.controller;
 
 import com.nimbusds.jose.JOSEException;
-import com.tuananh.authservice.advice.exception.DuplicateRecordException;
 import com.tuananh.authservice.advice.exception.IdInvalidException;
 import com.tuananh.authservice.dto.ApiResponse;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
 import com.tuananh.authservice.dto.response.AuthenticationResponse;
-import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.service.AuthenticationService;
 import com.tuananh.authservice.service.UserService;
-import com.tuananh.authservice.util.CookieUtil;
+import com.tuananh.authservice.service.VerifyCodeService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -35,26 +33,23 @@ import java.text.ParseException;
 public class AuthenticationController {
     AuthenticationService authenticationService;
     UserService userService;
+    VerifyCodeService verifyCodeService;
     Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
-    CookieUtil cookieUtil;
+
 
     @PostMapping("/outbound/authentication")
     ResponseEntity<ApiResponse<AuthenticationResponse>> outboundAuthenticate(
             @RequestParam("code") String code
     ){
-        InfoAuthenticationDTO infoAuthenticationDTO = authenticationService.outboundAuthenticate(code);
-
-        // set refreshToken Cookie
-        ResponseCookie resCookies = cookieUtil.createRefreshToken(infoAuthenticationDTO.getRefreshToken());
+        AuthenticationResponse infoAuthenticationDTO = authenticationService.outboundAuthenticate(code);
 
         ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Success")
-                .data(infoAuthenticationDTO.getAuthenticationResponse())
+                .data(infoAuthenticationDTO)
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(apiResponse);
     }
 
@@ -69,30 +64,22 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request) {
-        InfoAuthenticationDTO infoAuthenticationDTO = authenticationService.authenticate(request);
-
-        // set refreshToken Cookie
-        ResponseCookie resCookies = cookieUtil.createRefreshToken(infoAuthenticationDTO.getRefreshToken());
+        AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
 
         logger.debug("fetchCustomerDetails method start");
         ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("User login")
-                .data(infoAuthenticationDTO.getAuthenticationResponse())
+                .data(authenticationResponse)
                 .build();
         logger.debug("fetchCustomerDetails method end");
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(apiResponse);
     }
 
     @PostMapping("/register")
     public ApiResponse<UserResponse> createNewUser(@Valid @RequestBody CreateUserRequest postManUser) {
-        boolean isEmailExist = this.userService.isEmailExist(postManUser.getEmail());
-        if (isEmailExist) {
-            throw new DuplicateRecordException("USER ", "Email", postManUser.getEmail());}
-
         UserResponse userResponse = this.userService.handleCreateUser(postManUser);
         return ApiResponse.<UserResponse>builder()
                 .code(HttpStatus.CREATED.value())
@@ -107,18 +94,15 @@ public class AuthenticationController {
             throw new IdInvalidException("You do not have a refresh token in the cookie");
         }
 
-        InfoAuthenticationDTO infoAuthenticationDTO = authenticationService.refreshToken(refresh_token);
-
-        ResponseCookie resCookies = cookieUtil.removeRefreshToken();
+        AuthenticationResponse authenticationResponse = authenticationService.refreshToken(refresh_token);
 
         ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Refresh Token")
-                .data(infoAuthenticationDTO.getAuthenticationResponse())
+                .data(authenticationResponse)
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(apiResponse);
     }
 
@@ -147,5 +131,17 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
                 .body(apiResponse);
+    }
+
+
+    @GetMapping("/verifyRegister")
+    ApiResponse<AuthenticationResponse> verifyRegister(@RequestParam(name = "code") String code) {
+        AuthenticationResponse authenticationResponse =  authenticationService.createAuthenticationResponse(verifyCodeService.verify(code));
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Verify email register success")
+                .data(authenticationResponse)
+                .build();
     }
 }

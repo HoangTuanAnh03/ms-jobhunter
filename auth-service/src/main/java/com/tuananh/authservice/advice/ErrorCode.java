@@ -17,6 +17,8 @@ public enum ErrorCode {
     UNAUTHORIZED(401, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     PASSWORD_EXISTED(400, "Password existed", HttpStatus.BAD_REQUEST),
+    VERIFY_EXPIRED(1005, "Code is expired, verification failed", HttpStatus.BAD_REQUEST),
+    VERIFY_FAILED(400, "Code is incorrect, verification failed", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

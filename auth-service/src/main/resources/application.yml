@@ -55,16 +55,20 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
 
-jwt:
-  signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
-  valid-duration: 3600 # in second
-  refreshable-duration: 36000 # in seconds
 
-outbound:
-  identity:
-    client-id: 286299218562-ur2avuo3vhf2hbsbuga3pkr27ejqhf67.apps.googleusercontent.com
-    client-secret: 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
-    redirect-uri: "http://localhost:3000/authenticate"
+
+auth:
+  outbound:
+    identity:
+      client-id: "286299218562-ur2avuo3vhf2hbsbuga3pkr27ejqhf67.apps.googleusercontent.com"
+      client-secret: "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"
+      redirect-uri: "http://localhost:3000/authenticate"
+  jwt:
+    signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
+    valid-duration: 3600 # in second
+    refreshable-duration: 36000 # in seconds
+  verify:
+    code-duration: 86400000 # 24 * 60 * 60 * 1000 = 86400000 milli  --- 1 day
 
 app:
   services:

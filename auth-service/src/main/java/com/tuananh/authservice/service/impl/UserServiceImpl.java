@@ -2,6 +2,7 @@ package com.tuananh.authservice.service.impl;
 
 import com.tuananh.authservice.advice.AppException;
 import com.tuananh.authservice.advice.ErrorCode;
+import com.tuananh.authservice.advice.exception.DuplicateRecordException;
 import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.mapper.UserMapper;
@@ -13,13 +14,16 @@ import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
 import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.entity.User;
+import com.tuananh.authservice.entity.VerificationCode;
 import com.tuananh.authservice.repository.RoleRepository;
 import com.tuananh.authservice.repository.UserRepository;
 import com.tuananh.authservice.service.UserService;
+import com.tuananh.authservice.service.VerifyCodeService;
 import com.tuananh.authservice.util.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -39,6 +44,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    VerifyCodeService verifyCodeService;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     SecurityUtil securityUtil;
@@ -48,8 +54,8 @@ public class UserServiceImpl implements UserService {
      * @return boolean indicating if the email already exited or not
      */
     @Override
-    public boolean isEmailExist(String email) {
-        return this.userRepository.existsByEmail(email);
+    public boolean isEmailExistAndActive(String email) {
+        return this.userRepository.existsByEmailAndActive(email, true);
     }
 
     /**
@@ -168,35 +174,44 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @param newUser - Input CreateUserRequest Object
+     * @param createUserRequest - Input CreateUserRequest Object
      * @return User Details based on a given data saved to database
      */
     @Override
-    public UserResponse handleCreateUser(CreateUserRequest newUser) {
-        // check company
-//        if (user.getCompany() != null) {
-//            Optional<Company> companyOptional = this.companyService.findById(user.getCompany().getId());
-//            user.setCompany(companyOptional.isPresent() ? companyOptional.get() : null);
-//        }
+    public UserResponse handleCreateUser(CreateUserRequest createUserRequest) {
+        User user = userRepository.findByEmail(createUserRequest.getEmail()).orElse(null);
+        if (user != null) {
+            if (user.getActive()) throw new DuplicateRecordException("USER ", "Email", createUserRequest.getEmail());
+            else userRepository.delete(user);
+        }
 
         Role role = roleRepository.findByName("USER").orElseThrow(
                 () -> new ResourceNotFoundException("Role", "roleName", "USER")
         );
 
-        User user = User.builder()
-                .id("")
-                .name(newUser.getName())
+        User newUser = User.builder()
+                .id("").name(createUserRequest.getName())
 //                .gender(newUser.getGender())
 //                .address(newUser.getAddress())
 //                .dob(newUser.getDob())
-                .email(newUser.getEmail())
-                .role(role)
-                .password(passwordEncoder.encode(newUser.getPassword()))
+                .email(createUserRequest.getEmail())
+                .role(role).password(passwordEncoder.encode(createUserRequest.getPassword()))
+                .active(false)
                 .build();
 
-        userRepository.save(user);
+        VerificationCode verificationCode = verifyCodeService.findByEmail(createUserRequest.getEmail());
 
-        return this.userMapper.toUserResponse(user);
+        if (verificationCode != null) {
+            verifyCodeService.delete(verificationCode);
+        }
+
+        String code = RandomStringUtils.randomAlphanumeric(64);
+
+        verifyCodeService.save(VerificationCode.builder().code(code).email(createUserRequest.getEmail()).exp(LocalDateTime.now()).build());
+
+        userRepository.save(newUser);
+
+        return this.userMapper.toUserResponse(newUser);
     }
 
     /**

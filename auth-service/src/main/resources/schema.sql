@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `users`
     `name`          varchar(255)                   DEFAULT NULL,
     `password`      varchar(255)                   DEFAULT NULL,
     `role_id`       bigint(20)                     DEFAULT NULL,
+    `active`          bit                              null,
     PRIMARY KEY (`id`),
     KEY `FKp56c1712k691lhsyewcssf40f` (`role_id`),
     CONSTRAINT `FKp56c1712k691lhsyewcssf40f` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
@@ -61,19 +62,19 @@ CREATE TABLE IF NOT EXISTS `users`
 
 -- Chèn dữ liệu vào users nếu chưa tồn tại
 INSERT IGNORE INTO `users` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `address`, `company_id`,
-                            `dob`, `email`, `gender`, `mobile_number`, `name`, `password`, `role_id`)
+                            `dob`, `email`, `gender`, `mobile_number`, `name`, `password`, `role_id`, `active`)
 VALUES
     ('e692cd89-e09e-4651-afb8-8956d349ff6c', '2024-07-25 16:55:14.000000', 'anonymousUser', NULL, NULL, 'string', 0,
      '2003-07-17', 'user@gmail.com', 'FEMALE', NULL, 'USER',
-     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 1),
+     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 1, 1),
 
     ('e692cd89-e09e-4651-afb8-8956d349ff6b', '2024-07-25 16:55:14.000000', 'anonymousUser', NULL, NULL, 'string', 0,
      '2003-07-17', 'hr@gmail.com', 'FEMALE', NULL, 'HR',
-     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 1),
+     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 1, 1),
 
     ('e692cd89-e09e-4651-afb8-8956d349ff6a', '2024-07-25 16:55:14.000000', 'anonymousUser', NULL, NULL, 'string', 0,
      '2003-07-17', 'admin@gmail.com', 'FEMALE', NULL, 'ADMIN',
-     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 3);
+     '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu', 3, 1);
 
 
 -- Thực hiện ALTER TABLE một cách an toàn

@@ -34,7 +34,7 @@ import java.util.StringJoiner;
 public class CookieUtil {
 
     @NonFinal
-    @Value("${jwt.refreshable-duration}")
+    @Value("${auth.jwt.refreshable-duration}")
     long REFRESHABLE_DURATION;
 
 

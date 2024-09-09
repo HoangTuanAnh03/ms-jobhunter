@@ -8,7 +8,6 @@ import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.ExchangeTokenRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
-import com.tuananh.authservice.dto.response.InfoAuthenticationDTO;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.entity.InvalidatedToken;
@@ -32,6 +31,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -50,15 +50,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     RoleRepository roleRepository;
 
     @NonFinal
-    @Value("${outbound.identity.client-id}")
+    @Value("${auth.outbound.identity.client-id}")
     protected String CLIENT_ID;
 
     @NonFinal
-    @Value("${outbound.identity.client-secret}")
+    @Value("${auth.outbound.identity.client-secret}")
     protected String CLIENT_SECRET;
 
     @NonFinal
-    @Value("${outbound.identity.redirect-uri}")
+    @Value("${auth.outbound.identity.redirect-uri}")
     protected String REDIRECT_URI;
 
     @NonFinal
@@ -69,7 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @return
      */
     @Override
-    public InfoAuthenticationDTO outboundAuthenticate(String code) {
+    public AuthenticationResponse outboundAuthenticate(String code) {
         var response = outboundIdentityClient.exchangeToken(ExchangeTokenRequest.builder()
                 .code(code)
                 .clientId(CLIENT_ID)
@@ -96,10 +96,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                 .name(userInfo.getName())
                                 .email(userInfo.getEmail())
                                 .password("")
+                                .active(true)
                                 .role(role)
                                 .build()));
 
-        return this.createInfoAuthenticationDTO(user);
+        return createAuthenticationResponse(user);
     }
 
     /**
@@ -124,7 +125,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @return User Details based on a given email and password
      */
     @Override
-    public InfoAuthenticationDTO authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 request.getEmail(), request.getPassword());
         // authentication user => override loadUserByUsername
@@ -137,7 +138,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return createInfoAuthenticationDTO(user);
+        return createAuthenticationResponse(user);
     }
 
     /**
@@ -161,7 +162,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @return User Details based on a given refreshToken
      */
     @Override
-    public InfoAuthenticationDTO refreshToken(String refreshToken) throws ParseException, JOSEException {
+    public AuthenticationResponse refreshToken(String refreshToken) throws ParseException, JOSEException {
         var signedJWT = securityUtil.verifyToken(refreshToken);
 
         var jit = signedJWT.getJWTClaimsSet().getJWTID();
@@ -176,7 +177,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
-        return createInfoAuthenticationDTO(user);
+        return createAuthenticationResponse(user);
     }
 
     /**
@@ -184,7 +185,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @return Convert User Object to InfoAuthenticationDTO Object
      */
     @Override
-    public InfoAuthenticationDTO createInfoAuthenticationDTO(User user) {
+    public AuthenticationResponse createAuthenticationResponse(User user) {
         var accessToken = securityUtil.generateToken(user, false);
         var refreshToken = securityUtil.generateToken(user, true);
 
@@ -193,14 +194,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(user.getEmail())
                 .name(user.getName())
                 .role("ROLE_" + user.getRole().getName())
+                .noPassword(!StringUtils.hasText(user.getPassword()))
                 .build();
 
-        AuthenticationResponse resLoginDTO = AuthenticationResponse.builder()
+        return AuthenticationResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .user(userLogin)
                 .build();
-
-        return InfoAuthenticationDTO.builder().refreshToken(refreshToken).authenticationResponse(resLoginDTO).build();
     }
 
 }

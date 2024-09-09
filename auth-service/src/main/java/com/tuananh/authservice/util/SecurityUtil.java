@@ -37,15 +37,15 @@ public class SecurityUtil {
 
 
     @NonFinal
-    @Value("${jwt.signerKey}")
+    @Value("${auth.jwt.signerKey}")
     String SIGNER_KEY;
 
     @NonFinal
-    @Value("${jwt.valid-duration}")
+    @Value("${auth.jwt.valid-duration}")
     long VALID_DURATION;
 
     @NonFinal
-    @Value("${jwt.refreshable-duration}")
+    @Value("${auth.jwt.refreshable-duration}")
     long REFRESHABLE_DURATION;
 
     /**

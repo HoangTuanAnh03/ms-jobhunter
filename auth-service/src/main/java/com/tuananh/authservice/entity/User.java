@@ -37,6 +37,8 @@ public class User extends BaseEntity {
 
     String address;
 
+    Boolean active;
+
     @Column(name = "company_id")
     long companyId;
 

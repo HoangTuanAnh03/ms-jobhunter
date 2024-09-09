@@ -18,7 +18,7 @@ public interface UserService {
      * @param email - Input email
      * @return boolean indicating if the email already exited or not
      */
-    boolean isEmailExist(String email);
+    boolean isEmailExistAndActive(String email);
 
     /**
      * @param id - Input UserId

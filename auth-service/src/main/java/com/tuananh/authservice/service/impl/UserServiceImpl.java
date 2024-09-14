@@ -20,6 +20,7 @@ import com.tuananh.authservice.repository.UserRepository;
 import com.tuananh.authservice.service.UserService;
 import com.tuananh.authservice.service.VerifyCodeService;
 import com.tuananh.authservice.util.SecurityUtil;
+import com.tuananh.event.NotificationEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +28,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +36,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -48,6 +52,7 @@ public class UserServiceImpl implements UserService {
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     SecurityUtil securityUtil;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
      * @param email - Input email
@@ -210,6 +215,20 @@ public class UserServiceImpl implements UserService {
         verifyCodeService.save(VerificationCode.builder().code(code).email(createUserRequest.getEmail()).exp(LocalDateTime.now()).build());
 
         userRepository.save(newUser);
+
+        Map<String, String> param = new HashMap<>();
+        param.put("code", code);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(newUser.getEmail())
+                .subject("Welcome to ITviec")
+                .param(param)
+                .body("Hello, " + newUser.getName())
+                .build();
+
+        // Publish message to kafka
+        kafkaTemplate.send("notification-delivery", notificationEvent);
 
         return this.userMapper.toUserResponse(newUser);
     }

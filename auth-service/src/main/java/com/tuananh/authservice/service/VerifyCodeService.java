@@ -1,5 +1,6 @@
 package com.tuananh.authservice.service;
 
+import com.tuananh.authservice.dto.request.VerifyNewPasswordRequest;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.entity.VerificationCode;
 
@@ -13,6 +14,7 @@ public interface VerifyCodeService {
 
      Boolean isTimeOutRequired(VerificationCode verificationCode, long ms);
 
+     User verifyRegister(String code);
 
-     User verify(String code);
+     User verifyForgotPassword(VerifyNewPasswordRequest request);
 }

@@ -6,6 +6,7 @@ import com.tuananh.authservice.dto.ApiResponse;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.CreateUserRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
+import com.tuananh.authservice.dto.request.VerifyNewPasswordRequest;
 import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
@@ -136,11 +137,22 @@ public class AuthenticationController {
 
     @GetMapping("/verifyRegister")
     ApiResponse<AuthenticationResponse> verifyRegister(@RequestParam(name = "code") String code) {
-        AuthenticationResponse authenticationResponse =  authenticationService.createAuthenticationResponse(verifyCodeService.verify(code));
+        AuthenticationResponse authenticationResponse =  authenticationService.createAuthenticationResponse(verifyCodeService.verifyRegister(code));
 
         return ApiResponse.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Verify email register success")
+                .data(authenticationResponse)
+                .build();
+    }
+
+    @PostMapping("/verifyForgotPassword")
+    ApiResponse<AuthenticationResponse> verifyForgotPassword(@RequestBody VerifyNewPasswordRequest request) {
+        AuthenticationResponse authenticationResponse =  authenticationService.createAuthenticationResponse(verifyCodeService.verifyForgotPassword(request));
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Verify email forgot password success")
                 .data(authenticationResponse)
                 .build();
     }

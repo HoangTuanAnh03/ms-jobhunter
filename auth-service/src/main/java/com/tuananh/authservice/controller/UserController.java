@@ -2,8 +2,10 @@ package com.tuananh.authservice.controller;
 
 import com.tuananh.authservice.advice.exception.PermissionException;
 import com.tuananh.authservice.dto.ApiResponse;
+import com.tuananh.authservice.dto.request.ForgotPasswordRequest;
 import com.tuananh.authservice.dto.request.PasswordCreationRequest;
 import com.tuananh.authservice.dto.request.UpdateUserRequest;
+import com.tuananh.authservice.dto.response.AuthenticationResponse;
 import com.tuananh.authservice.dto.response.ResultPaginationDTO;
 import com.tuananh.authservice.dto.response.SimpInfoUserResponse;
 import com.tuananh.authservice.dto.response.UserResponse;
@@ -112,5 +114,16 @@ public class UserController {
                     .data(null)
                     .build();
         }
+    }
+
+    @PostMapping("/forgotPassword")
+    ApiResponse<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        userService.forgotPassword(forgotPasswordRequest.getEmail());
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Verify email register success")
+                .data(null)
+                .build();
     }
 }

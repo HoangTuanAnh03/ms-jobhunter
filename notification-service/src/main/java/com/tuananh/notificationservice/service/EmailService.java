@@ -29,18 +29,21 @@ public class EmailService {
     EmailClient emailClient;
     private SpringTemplateEngine templateEngine;
 
-
     @Value("${brevo.api-key}")
     @NonFinal
     String apiKey;
 
     @Value("${api.verify-register}")
     @NonFinal
-    String urlVerify;
+    String urlVerifyRegister;
 
-    public EmailResponse sendEmail(NotificationEvent message) {
+    @Value("${api.verify-forgot-password}")
+    @NonFinal
+    String urlVerifyForgotPassword;
+
+    public EmailResponse sendEmailRegister(NotificationEvent message) {
         Map<String, Object> props = new HashMap<>();
-        String url = urlVerify + message.getParam().get("code");
+        String url = urlVerifyRegister + message.getParam().get("code");
 
         props.put("name", message.getParam().get("name"));
         props.put("url", url);
@@ -50,6 +53,25 @@ public class EmailService {
 
         String html = templateEngine.process("verify_register", context);
 
+        return send(message, html);
+    }
+
+    public EmailResponse sendEmailForgotPassword(NotificationEvent message) {
+        Map<String, Object> props = new HashMap<>();
+        String url = urlVerifyForgotPassword + message.getParam().get("code");
+
+        props.put("name", message.getParam().get("name"));
+        props.put("url", url);
+
+        Context context = new Context();
+        context.setVariables(props);
+
+        String html = templateEngine.process("verify_forgot_password", context);
+
+        return send(message, html);
+    }
+
+    private EmailResponse send(NotificationEvent message, String html){
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Sender.builder()
                         .name("Hoàng Tuấn Anh")

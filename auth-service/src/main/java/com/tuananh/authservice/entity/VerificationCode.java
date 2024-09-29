@@ -1,5 +1,6 @@
 package com.tuananh.authservice.entity;
 
+import com.tuananh.authservice.util.constant.VerifyTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,4 +25,6 @@ public class VerificationCode {
     String code;
 
     LocalDateTime exp;
+
+    VerifyTypeEnum type;
 }

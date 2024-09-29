@@ -26,6 +26,7 @@ public class SecurityConfiguration {
             "/auth/register",
             "/auth/outbound/authentication",
             "/users/updateHR/*",
+            "/users/forgotPassword",
             "/users/fetchUserById",
             "/auth/**",
             "/actuator/**",

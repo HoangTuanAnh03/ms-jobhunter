@@ -20,6 +20,7 @@ import com.tuananh.authservice.repository.UserRepository;
 import com.tuananh.authservice.service.UserService;
 import com.tuananh.authservice.service.VerifyCodeService;
 import com.tuananh.authservice.util.SecurityUtil;
+import com.tuananh.authservice.util.constant.VerifyTypeEnum;
 import com.tuananh.event.NotificationEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -200,7 +201,8 @@ public class UserServiceImpl implements UserService {
 //                .address(newUser.getAddress())
 //                .dob(newUser.getDob())
                 .email(createUserRequest.getEmail())
-                .role(role).password(passwordEncoder.encode(createUserRequest.getPassword()))
+                .role(role)
+                .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .active(false)
                 .build();
 
@@ -212,12 +214,17 @@ public class UserServiceImpl implements UserService {
 
         String code = RandomStringUtils.randomAlphanumeric(64);
 
-        verifyCodeService.save(VerificationCode.builder().code(code).email(createUserRequest.getEmail()).exp(LocalDateTime.now()).build());
+        verifyCodeService.save(VerificationCode.builder()
+                .code(code)
+                .type(VerifyTypeEnum.REGISTER)
+                .email(createUserRequest.getEmail())
+                .exp(LocalDateTime.now()).build());
 
         userRepository.save(newUser);
 
         Map<String, String> param = new HashMap<>();
         param.put("code", code);
+        param.put("name", newUser.getName());
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
@@ -282,5 +289,48 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<SimpInfoUserResponse> fetchUserByIdIn(List<String> ids) {
         return userRepository.findByIdIn(ids).stream().map(userMapper::toSimpInfoUserResponse).toList();
+    }
+
+    /**
+     * @param email
+     * @return
+     */
+    @Override
+    public Boolean forgotPassword(String email) {
+        User user = userRepository.findFirstByEmailAndActive(email, true).orElseThrow(
+            () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+
+        if (!StringUtils.hasText(user.getPassword()))
+            throw new AppException(ErrorCode.LOGIN_WITH_GOOGLE);
+
+        VerificationCode verificationCode = verifyCodeService.findByEmail(email);
+
+        if (verificationCode != null) {
+            verifyCodeService.delete(verificationCode);
+        }
+
+        String code = RandomStringUtils.randomAlphanumeric(64);
+
+        verifyCodeService.save(VerificationCode.builder()
+                .code(code)
+                .type(VerifyTypeEnum.FORGOT_PASSWORD)
+                .email(email)
+                .exp(LocalDateTime.now()).build());
+
+        Map<String, String> param = new HashMap<>();
+        param.put("code", code);
+        param.put("name", user.getName());
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(email)
+                .subject(email + ", reset your password")
+                .param(param)
+                .build();
+
+        // Publish message to kafka
+        kafkaTemplate.send("forgot-password", notificationEvent);
+        return true;
     }
 }

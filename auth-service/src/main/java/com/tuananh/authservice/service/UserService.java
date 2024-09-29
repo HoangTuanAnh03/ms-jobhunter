@@ -82,8 +82,6 @@ public interface UserService {
 
     List<SimpInfoUserResponse> fetchUserByIdIn(List<String> ids);
 
-    /**
-     * @return UserResponse Object - Info currentUser
-     */
+    Boolean forgotPassword(String email);
 
 }

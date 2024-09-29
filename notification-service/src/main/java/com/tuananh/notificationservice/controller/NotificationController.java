@@ -20,6 +20,12 @@ public class NotificationController {
     @KafkaListener(topics = "notification-delivery")
     public void listenNotificationDelivery(NotificationEvent message){
         log.info("Message received: {}", message);
-        emailService.sendEmail(message);
+        emailService.sendEmailRegister(message);
+    }
+
+    @KafkaListener(topics = "forgot-password")
+    public void listenNotificationForgotPassword(NotificationEvent message){
+        log.info("Message received: {}", message);
+        emailService.sendEmailForgotPassword(message);
     }
 }

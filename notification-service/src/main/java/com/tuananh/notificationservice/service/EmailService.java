@@ -42,21 +42,18 @@ public class EmailService {
     String urlVerifyForgotPassword;
 
     public EmailResponse sendEmailRegister(NotificationEvent message) {
-        Map<String, Object> props = new HashMap<>();
-        String url = urlVerifyRegister + message.getParam().get("code");
-
-        props.put("name", message.getParam().get("name"));
-        props.put("url", url);
-
-        Context context = new Context();
-        context.setVariables(props);
-
-        String html = templateEngine.process("verify_register", context);
+        String html = templateEngine.process("verify_register", getContext(message, urlVerifyRegister));
 
         return send(message, html);
     }
 
     public EmailResponse sendEmailForgotPassword(NotificationEvent message) {
+        String html = templateEngine.process("verify_forgot_password",  getContext(message, urlVerifyForgotPassword));
+
+        return send(message, html);
+    }
+
+    private Context getContext(NotificationEvent message, String urlVerifyForgotPassword) {
         Map<String, Object> props = new HashMap<>();
         String url = urlVerifyForgotPassword + message.getParam().get("code");
 
@@ -65,10 +62,7 @@ public class EmailService {
 
         Context context = new Context();
         context.setVariables(props);
-
-        String html = templateEngine.process("verify_forgot_password", context);
-
-        return send(message, html);
+        return context;
     }
 
     private EmailResponse send(NotificationEvent message, String html){

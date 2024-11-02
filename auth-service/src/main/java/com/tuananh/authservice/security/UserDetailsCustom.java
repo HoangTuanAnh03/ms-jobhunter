@@ -1,7 +1,6 @@
 package com.tuananh.authservice.security;
 
 import com.tuananh.authservice.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +12,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Component("userDetailsService")
-@Slf4j
 public class UserDetailsCustom implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -29,13 +27,10 @@ public class UserDetailsCustom implements UserDetailsService {
             throw new UsernameNotFoundException("User not existed");
         }
 
-//        log.info(Collections.singletonList(new SimpleGrantedAuthority(optionalUser.get().getRole().getName())).toString());
-
         return new User(
                 optionalUser.get().getEmail(),
                 optionalUser.get().getPassword(),
-//                Collections.singletonList(new SimpleGrantedAuthority(optionalUser.get().getRole().getName())));
-                Collections.singletonList(new SimpleGrantedAuthority("ADMIN")));
+                Collections.singletonList(new SimpleGrantedAuthority(optionalUser.get().getRole().getName())));
     }
 
 }

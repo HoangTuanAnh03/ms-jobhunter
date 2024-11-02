@@ -111,7 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest introspectRequest) {
         var token = introspectRequest.getToken();
         try {
-            SignedJWT signedJWT = securityUtil.verifyToken(token);
+            SignedJWT signedJWT = securityUtil.verifyToken(token, false);
             String uid = signedJWT.getJWTClaimsSet().getClaim("uid").toString();
             String authorities = signedJWT.getJWTClaimsSet().getClaim("scope").toString();
             return IntrospectResponse.builder().valid(true).uid(uid).authorities(authorities).build();
@@ -146,7 +146,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public void logout(String refreshToken) throws ParseException, JOSEException {
-        var signToken = securityUtil.verifyToken(refreshToken);
+        var signToken = securityUtil.verifyToken(refreshToken, true);
 
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
@@ -163,7 +163,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public AuthenticationResponse refreshToken(String refreshToken) throws ParseException, JOSEException {
-        var signedJWT = securityUtil.verifyToken(refreshToken);
+        var signedJWT = securityUtil.verifyToken(refreshToken, true);
 
         var jit = signedJWT.getJWTClaimsSet().getJWTID();
         var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();

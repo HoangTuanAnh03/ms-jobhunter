@@ -89,7 +89,7 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/refreshToken")
     ResponseEntity<ApiResponse<AuthenticationResponse>> refreshToken(@CookieValue(name = "refresh_token", defaultValue = "defaultToken") String refresh_token) throws IdInvalidException, ParseException, JOSEException {
         if (refresh_token.equals("defaultToken")) {
             throw new IdInvalidException("You do not have a refresh token in the cookie");

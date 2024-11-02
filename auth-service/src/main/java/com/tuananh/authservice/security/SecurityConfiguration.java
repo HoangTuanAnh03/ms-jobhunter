@@ -13,36 +13,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
-//            "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh",
-            "/auth/register",
-            "/auth/outbound/authentication",
-            "/users/updateHR/*",
             "/users/forgotPassword",
             "/users/fetchUserById",
             "/auth/**",
             "/actuator/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
     };
-
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
 
     private final CustomJwtDecoder customJwtDecoder;
 

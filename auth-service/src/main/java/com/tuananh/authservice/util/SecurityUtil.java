@@ -5,10 +5,9 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.tuananh.authservice.entity.User;
-import com.tuananh.authservice.repository.InvalidatedTokenRepository;
 import com.tuananh.authservice.advice.AppException;
 import com.tuananh.authservice.advice.ErrorCode;
+import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.service.InvalidatedTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,10 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Date;
+import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -35,10 +37,13 @@ import java.util.*;
 public class SecurityUtil {
     InvalidatedTokenService invalidatedTokenService;
 
+    @NonFinal
+    @Value("${auth.jwt.accessSignerKey}")
+    String ACCESS_SIGNER_KEY;
 
     @NonFinal
-    @Value("${auth.jwt.signerKey}")
-    String SIGNER_KEY;
+    @Value("${auth.jwt.refreshSignerKey}")
+    String REFRESH_SIGNER_KEY;
 
     @NonFinal
     @Value("${auth.jwt.valid-duration}")
@@ -76,7 +81,7 @@ public class SecurityUtil {
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            jwsObject.sign(new MACSigner((isRefresh) ? REFRESH_SIGNER_KEY.getBytes() : ACCESS_SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token", e);
@@ -89,8 +94,8 @@ public class SecurityUtil {
      *
      * @return the token validation JWT
      */
-    public SignedJWT verifyToken(String token) throws JOSEException, ParseException {
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+    public SignedJWT verifyToken(String token, boolean isRefresh ) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier((isRefresh) ? REFRESH_SIGNER_KEY.getBytes() : ACCESS_SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 

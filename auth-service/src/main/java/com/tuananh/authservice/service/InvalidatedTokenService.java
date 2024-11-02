@@ -1,14 +1,14 @@
 package com.tuananh.authservice.service;
 
-import com.tuananh.authservice.entity.InvalidatedToken;
-import org.springframework.stereotype.Service;
+import com.tuananh.authservice.dto.request.InvalidatedTokenRequest;
+import com.tuananh.authservice.service.base.BaseRedisServiceV2;
 
-public interface InvalidatedTokenService {
+public interface InvalidatedTokenService extends BaseRedisServiceV2<String, String, String> {
 
      /**
-      * @param invalidatedToken - Input InvalidatedToken Object
+      * @param invalidatedTokenRequest - Input InvalidatedTokenRequest Object
       */
-     void createInvalidatedToken(InvalidatedToken invalidatedToken);
+     void createInvalidatedToken(InvalidatedTokenRequest invalidatedTokenRequest);
 
      /**
       * @param id - Input invalidatedTokenId

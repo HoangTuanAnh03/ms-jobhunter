@@ -8,9 +8,9 @@ import com.tuananh.authservice.advice.exception.ResourceNotFoundException;
 import com.tuananh.authservice.dto.request.AuthenticationRequest;
 import com.tuananh.authservice.dto.request.ExchangeTokenRequest;
 import com.tuananh.authservice.dto.request.IntrospectRequest;
+import com.tuananh.authservice.dto.request.InvalidatedTokenRequest;
 import com.tuananh.authservice.dto.response.IntrospectResponse;
 import com.tuananh.authservice.dto.response.AuthenticationResponse;
-import com.tuananh.authservice.entity.InvalidatedToken;
 import com.tuananh.authservice.entity.Role;
 import com.tuananh.authservice.entity.User;
 import com.tuananh.authservice.repository.RoleRepository;
@@ -151,10 +151,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
-        InvalidatedToken invalidatedToken =
-                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+        InvalidatedTokenRequest invalidatedTokenRequest =
+                InvalidatedTokenRequest.builder().id(jit).expiryTime(expiryTime.toInstant()).build();
 
-        invalidatedTokenService.createInvalidatedToken(invalidatedToken);
+        invalidatedTokenService.createInvalidatedToken(invalidatedTokenRequest);
     }
 
     /**
@@ -168,10 +168,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var jit = signedJWT.getJWTClaimsSet().getJWTID();
         var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        InvalidatedToken invalidatedToken =
-                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+        InvalidatedTokenRequest invalidatedTokenRequest =
+                InvalidatedTokenRequest.builder().id(jit).expiryTime(expiryTime.toInstant()).build();
 
-        invalidatedTokenService.createInvalidatedToken(invalidatedToken);
+        invalidatedTokenService.createInvalidatedToken(invalidatedTokenRequest);
 
         var username = signedJWT.getJWTClaimsSet().getSubject();
         var user = userRepository.findByEmail(username)

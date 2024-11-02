@@ -60,7 +60,9 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
 
-
+redis:
+  host: localhost
+  port: 6379
 
 auth:
   outbound:

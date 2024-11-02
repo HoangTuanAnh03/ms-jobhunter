@@ -3,14 +3,14 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Tạo bảng nếu chưa tồn tại
-CREATE TABLE IF NOT EXISTS `invalidated_token`
-(
-    `id`          varchar(255) NOT NULL,
-    `expiry_time` datetime(6) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci;
+-- CREATE TABLE IF NOT EXISTS `invalidated_token`
+-- (
+--     `id`          varchar(255) NOT NULL,
+--     `expiry_time` datetime(6) DEFAULT NULL,
+--     PRIMARY KEY (`id`)
+-- ) ENGINE = InnoDB
+--   DEFAULT CHARSET = utf8mb4
+--   COLLATE = utf8mb4_general_ci;
 
 -- Tạo bảng roles nếu chưa tồn tại
 CREATE TABLE IF NOT EXISTS `roles`
